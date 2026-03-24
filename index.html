@@ -5,574 +5,500 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Panel Scanner</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
-<script src="https://unpkg.com/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
+<script src="https://unpkg.com/tesseract.js@5.0.4/dist/tesseract.min.js"><\/script>
 <style>
-:root {
-  --bg:#13161f; --card:#1a1e2b; --surface:#1f2435; --surface2:#252c3e;
-  --border:#2a3148; --border2:#333d54;
-  --text:#dde6f0; --sub:#a0bbd0; --muted:#6b7280;
-  --accent:#1e40af; --accent-hi:#3b82f6; --accent-mid:#172554;
-  --red:#dc2626; --red-bg:#2a1010; --red-bdr:#4d1a1a;
-  --green:#16a34a; --green-bg:#0a1f0f; --green-bdr:#0d3518;
-  --amber:#d97706;
-}
+:root{--bg:#13161f;--card:#1a1e2b;--surface:#1f2435;--surface2:#252c3e;--border:#2a3148;--border2:#333d54;--text:#dde6f0;--sub:#a0bbd0;--muted:#6b7280;--accent:#1e40af;--accent-hi:#3b82f6;--accent-mid:#172554;--red:#dc2626;--red-bg:#2a1010;--red-bdr:#4d1a1a;--green:#16a34a;--green-bg:#0a1f0f;--green-bdr:#0d3518;--amber:#d97706;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding-bottom:60px;}
-
 .header{background:var(--card);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;}
-.header-icon{width:36px;height:36px;background:var(--accent-mid);border:1px solid var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
-.header-title{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:var(--accent-hi);letter-spacing:2px;}
-.header-sub{font-size:10px;color:var(--muted);font-family:'Roboto Mono',monospace;margin-top:1px;}
-
+.hi{width:36px;height:36px;background:var(--accent-mid);border:1px solid var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.ht{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:var(--accent-hi);letter-spacing:2px;}
+.hs{font-size:10px;color:var(--muted);font-family:'Roboto Mono',monospace;margin-top:1px;}
 .wrap{max-width:640px;margin:0 auto;padding:20px 16px;}
-
 .card{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:14px;overflow:hidden;}
-.card-head{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);}
-.card-num{width:24px;height:24px;background:var(--accent-mid);border:1px solid var(--accent);border-radius:50%;font-size:11px;font-weight:700;color:var(--accent-hi);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Roboto Mono',monospace;}
-.card-num.done{background:var(--green-bg);border-color:var(--green-bdr);color:var(--green);}
-.card-title{font-size:13px;font-weight:600;}
-.card-body{padding:16px;}
-
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 18px;border-radius:10px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;border:none;transition:opacity .15s;}
+.ch{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);}
+.cn{width:24px;height:24px;background:var(--accent-mid);border:1px solid var(--accent);border-radius:50%;font-size:11px;font-weight:700;color:var(--accent-hi);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Roboto Mono',monospace;}
+.cn.done{background:var(--green-bg);border-color:var(--green-bdr);color:var(--green);}
+.ct{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.cb{padding:16px;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 18px;border-radius:10px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;border:none;transition:opacity .15s,background .15s;}
 .btn:disabled{opacity:.4;cursor:not-allowed;}
-.btn-blue{background:#1e40af;color:#fff;width:100%;}
-.btn-blue:hover:not(:disabled){background:#2563eb;}
-.btn-gray{background:var(--surface2);color:var(--sub);border:1px solid var(--border);width:100%;}
-.btn-gray:hover:not(:disabled){background:var(--surface);color:var(--text);}
-.btn-green{background:#166534;color:#bbf7d0;border:1px solid #16a34a;width:100%;}
-.btn-sm{font-size:11px;padding:7px 12px;width:auto;}
-
-.btn-row{display:flex;gap:8px;}
-.btn-row .btn{flex:1;}
-
+.bb{background:#1e40af;color:#fff;width:100%;}
+.bb:hover:not(:disabled){background:#2563eb;}
+.bg{background:var(--surface2);color:var(--sub);border:1px solid var(--border);width:100%;}
+.bg:hover:not(:disabled){background:var(--surface);color:var(--text);}
+.bv{background:#166534;color:#bbf7d0;border:1px solid #16a34a;width:100%;}
+.bv:hover:not(:disabled){background:#15803d;}
+.bsm{font-size:11px;padding:7px 12px;width:auto;}
+.br{display:flex;gap:8px;}.br .btn{flex:1;}
 .hint{font-size:11px;color:var(--muted);font-family:'Roboto Mono',monospace;text-align:center;margin-top:10px;}
-
-/* progress */
-.prog-wrap{margin-top:14px;}
-.prog-bg{background:var(--surface);border-radius:999px;height:6px;overflow:hidden;margin-bottom:8px;}
-.prog-fill{height:100%;background:linear-gradient(90deg,#1e40af,#3b82f6);border-radius:999px;width:0%;transition:width .3s;}
-.prog-lbl{font-size:11px;color:var(--muted);font-family:'Roboto Mono',monospace;text-align:center;}
-
-/* preview */
-#preview-img{width:100%;border-radius:8px;border:1px solid var(--border);max-height:280px;object-fit:contain;background:#000;display:block;margin-bottom:12px;}
-
-/* info fields */
-.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
-.field label{display:block;font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;font-family:'Roboto Mono',monospace;}
-.field input,.field select{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;font-family:'Inter',sans-serif;padding:8px 10px;outline:none;}
-.field input:focus,.field select:focus{border-color:var(--accent-hi);}
-.field select option{background:var(--surface2);}
-
-/* table */
-.tbl-wrap{border:1px solid var(--border);border-radius:10px;overflow:hidden;max-height:400px;overflow-y:auto;margin-bottom:10px;}
+.pb{background:var(--surface);border-radius:999px;height:6px;overflow:hidden;margin-bottom:8px;}
+.pf{height:100%;background:linear-gradient(90deg,#1e40af,#3b82f6);border-radius:999px;width:0%;transition:width .3s;}
+.pl{font-size:11px;color:var(--muted);font-family:'Roboto Mono',monospace;text-align:center;}
+#pimg{width:100%;border-radius:8px;border:1px solid var(--border);max-height:280px;object-fit:contain;background:#000;display:block;margin-bottom:12px;}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.fi label{display:block;font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;font-family:'Roboto Mono',monospace;}
+.fi input,.fi select{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;font-family:'Inter',sans-serif;padding:8px 10px;outline:none;}
+.fi input:focus,.fi select:focus{border-color:var(--accent-hi);}
+.fi select option{background:var(--surface2);}
+.tw{border:1px solid var(--border);border-radius:10px;overflow:hidden;max-height:420px;overflow-y:auto;margin-bottom:10px;}
 table{width:100%;border-collapse:collapse;}
-thead th{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-family:'Roboto Mono',monospace;padding:7px 8px;background:var(--surface);text-align:left;position:sticky;top:0;}
+thead th{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-family:'Roboto Mono',monospace;padding:7px 8px;background:var(--surface);text-align:left;position:sticky;top:0;z-index:2;}
 tbody tr{border-top:1px solid var(--border);}
+tbody tr.lc td{opacity:.5;}
+tbody tr.lc .cn2{color:var(--amber);}
 tbody td{padding:3px 4px;vertical-align:middle;}
-.cnum{font-family:'Roboto Mono',monospace;font-size:11px;color:var(--muted);text-align:center;width:28px;padding-left:8px;}
+.cn2{font-family:'Roboto Mono',monospace;font-size:11px;color:var(--muted);text-align:center;width:28px;padding-left:8px;}
 .ti{width:100%;background:transparent;border:1px solid transparent;border-radius:6px;color:var(--text);font-size:11px;font-family:'Inter',sans-serif;padding:5px 6px;outline:none;}
 .ti:focus{border-color:var(--accent-hi);background:var(--surface);}
-.ti.mono{font-family:'Roboto Mono',monospace;text-align:center;}
-.del-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;padding:4px 8px;line-height:1;}
-.del-btn:hover{color:var(--red);}
-.add-btn{width:100%;background:var(--surface);border:1px dashed var(--border2);border-radius:8px;color:var(--muted);font-size:11px;font-family:'Inter',sans-serif;padding:8px;cursor:pointer;margin-bottom:14px;}
-.add-btn:hover{background:var(--surface2);color:var(--text);}
-
-/* raw text */
-.raw-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:'Roboto Mono',monospace;font-size:10px;color:var(--sub);white-space:pre-wrap;max-height:160px;overflow-y:auto;line-height:1.6;margin-top:8px;}
-.raw-toggle{font-size:10px;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px;font-family:'Roboto Mono',monospace;}
-
-/* json out */
-.json-out{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--sub);font-family:'Roboto Mono',monospace;font-size:9px;padding:8px;resize:none;height:80px;outline:none;line-height:1.6;}
-
-/* toast */
+.ti.m{font-family:'Roboto Mono',monospace;text-align:center;}
+.db{background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;padding:4px 8px;line-height:1;}
+.db:hover{color:var(--red);}
+.ab{width:100%;background:var(--surface);border:1px dashed var(--border2);border-radius:8px;color:var(--muted);font-size:11px;font-family:'Inter',sans-serif;padding:8px;cursor:pointer;margin-bottom:14px;}
+.ab:hover{background:var(--surface2);color:var(--text);}
+.rb{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:'Roboto Mono',monospace;font-size:10px;color:var(--sub);white-space:pre-wrap;max-height:160px;overflow-y:auto;line-height:1.6;margin-top:8px;}
+.rt{font-size:10px;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px;font-family:'Roboto Mono',monospace;}
+.jo{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--sub);font-family:'Roboto Mono',monospace;font-size:9px;padding:8px;resize:none;height:80px;outline:none;line-height:1.6;}
+.rp{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px;}
+.rr{display:flex;justify-content:space-between;align-items:center;font-size:11px;line-height:1.9;}
+.rl{color:var(--muted);font-family:'Roboto Mono',monospace;font-size:10px;}
+.rv{font-weight:600;font-family:'Roboto Mono',monospace;}
+.ok{color:#86efac;}.wa{color:var(--amber);}.er{color:#fca5a5;}
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:10px 18px;font-size:12px;color:var(--text);transition:transform .3s;z-index:999;white-space:nowrap;pointer-events:none;}
 #toast.show{transform:translateX(-50%) translateY(0);}
 #toast.ok{border-color:var(--green-bdr);color:#86efac;}
-#toast.err{border-color:var(--red-bdr);color:#fca5a5;}
-
+#toast.er{border-color:var(--red-bdr);color:#fca5a5;}
 .badge{display:inline-block;font-size:9px;font-family:'Roboto Mono',monospace;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--accent-mid);color:var(--accent-hi);border:1px solid var(--accent);}
-.section-label{font-size:11px;font-weight:600;margin-bottom:8px;color:var(--sub);}
-.divider{height:1px;background:var(--border);margin:14px 0;}
-
-@media(max-width:480px){
-  .field-grid{grid-template-columns:1fr;}
-  .btn-row{flex-direction:column;}
-}
+.sl{font-size:11px;font-weight:600;margin-bottom:8px;color:var(--sub);}
+.dv{height:1px;background:var(--border);margin:14px 0;}
+.tips{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:11px;color:var(--sub);line-height:1.7;margin-bottom:14px;}
+.tips strong{color:var(--text);}.tips ul{margin:4px 0 0 14px;}
+@media(max-width:480px){.fg{grid-template-columns:1fr;}.br{flex-direction:column;}}
 </style>
 </head>
 <body>
-
 <div class="header">
-  <div class="header-icon">⚡</div>
-  <div>
-    <div class="header-title">Panel Scanner</div>
-    <div class="header-sub">OCR · Offline · Nothing leaves your device</div>
+  <div class="hi">&#9889;</div>
+  <div><div class="ht">Panel Scanner</div><div class="hs">Column-aware OCR &middot; Offline &middot; Nothing leaves device</div></div>
+</div>
+<div class="wrap">
+  <div class="tips"><strong>Best results:</strong><ul>
+    <li>Shoot straight-on &mdash; avoid angles &amp; glare</li>
+    <li>Full schedule in frame, not cropped</li>
+    <li>Higher resolution = better accuracy</li>
+    <li>Faded rows = low confidence, double-check those</li>
+  </ul></div>
+
+  <div class="card">
+    <div class="ch"><div class="cn" id="s1">1</div><div class="ct">Capture or Upload Panel Schedule</div></div>
+    <div class="cb">
+      <input type="file" id="icam" accept="image/*" capture="environment" style="display:none">
+      <input type="file" id="ilib" accept="image/*" style="display:none">
+      <div id="zbtns">
+        <div class="br" style="margin-bottom:10px;">
+          <button class="btn bb" id="bcam">&#128247; Take Photo</button>
+          <button class="btn bg" id="blib">&#128444; Choose File</button>
+        </div>
+        <div class="hint">JPG &middot; PNG &middot; WEBP &middot; HEIC &nbsp;&middot;&nbsp; Nothing uploaded anywhere</div>
+      </div>
+      <div id="zprev" style="display:none;">
+        <img id="pimg" src="" alt=""/>
+        <div class="br">
+          <button class="btn bb" id="bscan">&#128269; Scan Schedule</button>
+          <button class="btn bg bsm" style="flex:0 0 auto;width:auto;" id="bclr">&#x2715; Clear</button>
+        </div>
+      </div>
+      <div id="zprog" style="display:none;margin-top:14px;">
+        <div class="pb"><div class="pf" id="pfill"></div></div>
+        <div class="pl" id="plbl">Starting...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="card2" style="display:none;">
+    <div class="ch"><div class="cn" id="s2">2</div><div class="ct">Review &amp; Edit <span class="badge" id="cbadge">0 circuits</span></div></div>
+    <div class="cb">
+      <div class="rp" id="rpt"></div>
+      <span class="rt" id="rtog">&#9658; Show raw OCR text</span>
+      <div class="rb" id="rbox" style="display:none;"></div>
+      <div class="dv"></div>
+      <div class="sl">Panel Info</div>
+      <div class="fg">
+        <div class="fi"><label>Panel ID</label><input type="text" id="fn" placeholder="e.g. Main, LP-1"/></div>
+        <div class="fi"><label>Location</label><input type="text" id="fl" placeholder="e.g. 1st Floor"/></div>
+        <div class="fi"><label>System</label><select id="fs">
+          <option value="120_240_1">120/240V &middot; 1&Oslash; &middot; 3W</option>
+          <option value="120_208_3">120/208V &middot; 3&Oslash; &middot; 4W</option>
+          <option value="277_480_3">277/480V &middot; 3&Oslash; &middot; 4W</option>
+          <option value="240_3_3">240V &middot; 3&Oslash; &middot; 3W (Delta)</option>
+        </select></div>
+        <div class="fi"><label>Main Breaker</label><select id="fm">
+          <option value="0">No Main (MLO)</option><option value="60">60A</option>
+          <option value="100" selected>100A</option><option value="125">125A</option>
+          <option value="150">150A</option><option value="200">200A</option>
+          <option value="225">225A</option><option value="300">300A</option>
+          <option value="400">400A</option><option value="600">600A</option>
+          <option value="800">800A</option><option value="1000">1000A</option>
+          <option value="1200">1200A</option>
+        </select></div>
+      </div>
+      <div class="sl">Circuits <span style="font-size:10px;font-weight:400;color:var(--muted);">&mdash; edit any cell &middot; faded = low confidence</span></div>
+      <div class="tw"><table>
+        <thead><tr><th style="width:32px;">#</th><th style="width:48px;">Poles</th><th style="width:60px;">Bkr</th><th>Description</th><th style="width:30px;"></th></tr></thead>
+        <tbody id="ctb"></tbody>
+      </table></div>
+      <button class="ab" id="badd">+ Add Circuit</button>
+      <div class="br" style="margin-bottom:10px;">
+        <button class="btn bv" id="bcopy">&#128203; Copy JSON</button>
+        <button class="btn bg" id="bcsv">&#8595; CSV</button>
+        <button class="btn bg" id="bsave">&#128190; Save</button>
+      </div>
+      <div style="font-size:10px;color:var(--muted);font-family:'Roboto Mono',monospace;margin-bottom:6px;">OUTPUT JSON &mdash; paste into your panel schedule tool</div>
+      <textarea class="jo" id="jout" readonly></textarea>
+    </div>
+  </div>
+
+  <div class="card" id="csaved" style="display:none;">
+    <div class="ch"><div class="cn">&#128193;</div><div class="ct">Saved Scans</div></div>
+    <div class="cb" id="slist"></div>
   </div>
 </div>
-
-<div class="wrap">
-
-  <!-- STEP 1 -->
-  <div class="card">
-    <div class="card-head">
-      <div class="card-num" id="s1num">1</div>
-      <div class="card-title">Capture or Upload Panel Schedule</div>
-    </div>
-    <div class="card-body">
-
-      <!-- hidden file inputs -->
-      <input type="file" id="inp-cam" accept="image/*" capture="environment" style="display:none">
-      <input type="file" id="inp-lib" accept="image/*" style="display:none">
-
-      <!-- upload buttons — always visible until image chosen -->
-      <div id="zone-btns">
-        <div class="btn-row" style="margin-bottom:10px;">
-          <button class="btn btn-blue" id="btn-cam">📷 Take Photo</button>
-          <button class="btn btn-gray" id="btn-lib">🖼 Choose File</button>
-        </div>
-        <div class="hint">JPG · PNG · WEBP · HEIC &nbsp;·&nbsp; Nothing uploaded anywhere</div>
-      </div>
-
-      <!-- preview — hidden until image loaded -->
-      <div id="zone-preview" style="display:none;">
-        <img id="preview-img" src="" alt=""/>
-        <div class="btn-row">
-          <button class="btn btn-blue" id="btn-scan">🔍 Scan Panel Schedule</button>
-          <button class="btn btn-gray btn-sm" style="flex:0 0 auto;width:auto;" id="btn-clear">✕ Clear</button>
-        </div>
-      </div>
-
-      <!-- progress — hidden until scanning -->
-      <div id="zone-prog" style="display:none;margin-top:14px;">
-        <div class="prog-wrap">
-          <div class="prog-bg"><div class="prog-fill" id="prog-fill"></div></div>
-          <div class="prog-lbl" id="prog-lbl">Starting...</div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- STEP 2 — hidden until scan done -->
-  <div class="card" id="card2" style="display:none;">
-    <div class="card-head">
-      <div class="card-num" id="s2num">2</div>
-      <div class="card-title">Review &amp; Edit <span class="badge" id="ckt-badge">0 circuits</span></div>
-    </div>
-    <div class="card-body">
-
-      <span class="raw-toggle" id="raw-toggle">▶ Show raw OCR text</span>
-      <div class="raw-box" id="raw-box" style="display:none;"></div>
-
-      <div class="divider"></div>
-      <div class="section-label">Panel Info</div>
-
-      <div class="field-grid">
-        <div class="field"><label>Panel ID</label><input type="text" id="f-name" placeholder="e.g. Main, LP-1"/></div>
-        <div class="field"><label>Location</label><input type="text" id="f-loc" placeholder="e.g. 1st Floor"/></div>
-        <div class="field">
-          <label>System</label>
-          <select id="f-sys">
-            <option value="120_240_1">120/240V · 1Ø · 3W</option>
-            <option value="120_208_3">120/208V · 3Ø · 4W</option>
-            <option value="277_480_3">277/480V · 3Ø · 4W</option>
-            <option value="240_3_3">240V · 3Ø · 3W (Delta)</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Main Breaker</label>
-          <select id="f-main">
-            <option value="0">No Main (MLO)</option>
-            <option value="60">60A</option>
-            <option value="100" selected>100A</option>
-            <option value="125">125A</option>
-            <option value="150">150A</option>
-            <option value="200">200A</option>
-            <option value="225">225A</option>
-            <option value="300">300A</option>
-            <option value="400">400A</option>
-            <option value="600">600A</option>
-            <option value="800">800A</option>
-            <option value="1000">1000A</option>
-            <option value="1200">1200A</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="section-label">Circuits <span style="font-size:10px;font-weight:400;color:var(--muted);">— edit any cell</span></div>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr>
-            <th style="width:32px;">#</th>
-            <th style="width:48px;">Poles</th>
-            <th style="width:60px;">Bkr</th>
-            <th>Description</th>
-            <th style="width:30px;"></th>
-          </tr></thead>
-          <tbody id="ckt-body"></tbody>
-        </table>
-      </div>
-      <button class="add-btn" id="btn-add-row">+ Add Circuit</button>
-
-      <div class="btn-row" style="margin-bottom:10px;">
-        <button class="btn btn-green" id="btn-copy">📋 Copy JSON</button>
-        <button class="btn btn-gray" id="btn-csv">⬇ CSV</button>
-        <button class="btn btn-gray" id="btn-save">💾 Save</button>
-      </div>
-
-      <div style="font-size:10px;color:var(--muted);font-family:'Roboto Mono',monospace;margin-bottom:6px;">OUTPUT JSON — paste into your panel schedule tool</div>
-      <textarea class="json-out" id="json-out" readonly></textarea>
-
-    </div>
-  </div>
-
-  <!-- Saved -->
-  <div class="card" id="card-saved" style="display:none;">
-    <div class="card-head">
-      <div class="card-num">📁</div>
-      <div class="card-title">Saved Scans</div>
-    </div>
-    <div class="card-body" id="saved-list"></div>
-  </div>
-
-</div><!-- /wrap -->
-
 <div id="toast"></div>
 
 <script>
-// ── state ──
-var imgData  = null;
-var circuits = [];
-var rawText  = '';
-var rawOpen  = false;
+var D=null,C=[],R='',ro=false;
 
-// ── wire up buttons after DOM ready ──
-document.addEventListener('DOMContentLoaded', function() {
-
-  // Camera button
-  document.getElementById('btn-cam').addEventListener('click', function() {
-    document.getElementById('inp-cam').click();
-  });
-
-  // Library button
-  document.getElementById('btn-lib').addEventListener('click', function() {
-    document.getElementById('inp-lib').click();
-  });
-
-  // File input handlers
-  document.getElementById('inp-cam').addEventListener('change', function() { loadFile(this); });
-  document.getElementById('inp-lib').addEventListener('change', function() { loadFile(this); });
-
-  // Scan button
-  document.getElementById('btn-scan').addEventListener('click', runScan);
-
-  // Clear button
-  document.getElementById('btn-clear').addEventListener('click', resetAll);
-
-  // Raw toggle
-  document.getElementById('raw-toggle').addEventListener('click', function() {
-    rawOpen = !rawOpen;
-    document.getElementById('raw-box').style.display = rawOpen ? '' : 'none';
-    this.textContent = (rawOpen ? '▼ Hide' : '▶ Show') + ' raw OCR text';
-  });
-
-  // Add row
-  document.getElementById('btn-add-row').addEventListener('click', addRow);
-
-  // Export buttons
-  document.getElementById('btn-copy').addEventListener('click', copyJSON);
-  document.getElementById('btn-csv').addEventListener('click', exportCSV);
-  document.getElementById('btn-save').addEventListener('click', saveLocal);
-
-  // Click json-out to select all
-  document.getElementById('json-out').addEventListener('click', function() { this.select(); });
-
+document.addEventListener('DOMContentLoaded',function(){
+  id('bcam').onclick=function(){id('icam').click();};
+  id('blib').onclick=function(){id('ilib').click();};
+  id('icam').addEventListener('change',function(){lf(this);});
+  id('ilib').addEventListener('change',function(){lf(this);});
+  id('bscan').onclick=scan;
+  id('bclr').onclick=reset;
+  id('rtog').onclick=togRaw;
+  id('badd').onclick=addRow;
+  id('bcopy').onclick=cpJSON;
+  id('bcsv').onclick=xCSV;
+  id('bsave').onclick=saveLoc;
+  id('jout').onclick=function(){this.select();};
   loadSaved();
 });
 
-// ── load file ──
-function loadFile(input) {
-  var file = input.files && input.files[0];
-  if (!file) return;
-  input.value = ''; // reset so same file can re-trigger
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    imgData = e.target.result;
-    document.getElementById('preview-img').src = imgData;
-    document.getElementById('zone-btns').style.display    = 'none';
-    document.getElementById('zone-preview').style.display = '';
-    toast('Image ready — tap Scan', 'ok');
+function id(x){return document.getElementById(x);}
+
+function lf(inp){
+  var f=inp.files&&inp.files[0]; if(!f)return; inp.value='';
+  var r=new FileReader();
+  r.onload=function(e){
+    D=e.target.result;
+    id('pimg').src=D;
+    id('zbtns').style.display='none';
+    id('zprev').style.display='';
+    toast('Image ready \u2014 tap Scan','ok');
   };
-  reader.onerror = function() { toast('Could not read file', 'err'); };
-  reader.readAsDataURL(file);
+  r.onerror=function(){toast('Could not read file','er');};
+  r.readAsDataURL(f);
 }
 
-// ── scan ──
-async function runScan() {
-  if (!imgData) return;
-  document.getElementById('btn-scan').disabled = true;
-  document.getElementById('zone-prog').style.display = '';
-  prog(5, 'Starting OCR engine...');
+async function scan(){
+  if(!D)return;
+  id('bscan').disabled=true;
+  id('zprog').style.display='';
+  prog(5,'Starting OCR...');
+  try{
+    var w=await Tesseract.createWorker('eng',1,{logger:function(m){
+      if(m.status==='recognizing text')prog(15+Math.round(m.progress*70),'Reading... '+Math.round(m.progress*100)+'%');
+      else if(m.status==='loading tesseract core')prog(6,'Loading core...');
+      else if(m.status==='initializing tesseract')prog(10,'Initializing...');
+      else if(m.status==='loading language traineddata')prog(13,'Loading language...');
+    }});
+    await w.setParameters({tessedit_pageseg_mode:'6'});
+    prog(15,'Processing image...');
+    var res=await w.recognize(D);
+    await w.terminate();
+    R=res.data.text;
+    prog(88,'Detecting columns...');
+    var p=colParse(res.data);
+    prog(96,'Building list...');
+    applyP(p);
+    prog(100,'Done!');
+    setTimeout(function(){
+      id('zprog').style.display='none';
+      id('card2').style.display='';
+      id('rbox').textContent=R;
+      id('s1').className='cn done';
+      id('s1').textContent='\u2713';
+      renderTbl();updateJSON();loadSaved();
+      toast(C.length+' circuits found','ok');
+    },300);
+  }catch(e){
+    prog(0,'Error: '+e.message);
+    id('bscan').disabled=false;
+    toast('OCR failed \u2014 try clearer photo','er');
+    console.error(e);
+  }
+}
 
-  try {
-    var worker = await Tesseract.createWorker('eng', 1, {
-      logger: function(m) {
-        if (m.status === 'recognizing text') prog(20 + Math.round(m.progress * 70), 'Reading... ' + Math.round(m.progress*100) + '%');
-        else if (m.status === 'loading tesseract core') prog(8, 'Loading core...');
-        else if (m.status === 'initializing tesseract') prog(12, 'Initializing...');
-        else if (m.status === 'loading language traineddata') prog(16, 'Loading language...');
-      }
+function colParse(data){
+  // ── 1. Collect words with decent confidence ──
+  var W=[];
+  (data.words||[]).forEach(function(w){
+    var t=(w.text||'').trim().replace(/[|]/g,'');
+    if(!t||t.length<1||w.confidence<20)return;
+    W.push({t:t,conf:w.confidence,
+      x0:w.bbox.x0,y0:w.bbox.y0,x1:w.bbox.x1,y1:w.bbox.y1,
+      cx:(w.bbox.x0+w.bbox.x1)/2,cy:(w.bbox.y0+w.bbox.y1)/2});
+  });
+  var empty={circuits:[],report:{method:'no-words'},meta:{name:'',location:'',system:'120_240_1',main:'200'}};
+  if(!W.length)return empty;
+
+  var pgW=Math.max.apply(null,W.map(function(w){return w.x1;}));
+  var pgH=Math.max.apply(null,W.map(function(w){return w.y1;}));
+
+  // ── 2. Detect column headers — find ALL occurrences of each keyword ──
+  // Panel schedules have headers on BOTH left and right halves
+  var HK={
+    ckt:  /^(ckt\.?|circuit|#|no\.?)$/i,
+    desc: /^(description|desc\.?|load|loads?)$/i,
+    trip: /^(trip|amps?|breaker|bkr\.?|size|af|a\.?f\.?)$/i,
+    poles:/^(poles?|ph\.?|phase|type)$/i,
+    note: /^(note|notes?|type)$/i
+  };
+  // Find the lowest Y that has header words → that's the header row Y
+  var allHdrWords=[];
+  W.forEach(function(w){
+    Object.keys(HK).forEach(function(k){
+      if(HK[k].test(w.t)) allHdrWords.push({k:k,w:w});
     });
-
-    var result = await worker.recognize(imgData);
-    await worker.terminate();
-
-    rawText = result.data.text;
-    prog(95, 'Parsing circuits...');
-    parseText(rawText);
-    prog(100, 'Done!');
-
-    setTimeout(function() {
-      document.getElementById('zone-prog').style.display = 'none';
-      document.getElementById('card2').style.display     = '';
-      document.getElementById('raw-box').textContent     = rawText;
-      document.getElementById('s1num').className         = 'card-num done';
-      document.getElementById('s1num').textContent       = '✓';
-      renderTable();
-      updateJSON();
-      loadSaved();
-      toast(circuits.length + ' circuits extracted', 'ok');
-    }, 400);
-
-  } catch(e) {
-    prog(0, 'Error: ' + e.message);
-    document.getElementById('btn-scan').disabled = false;
-    toast('OCR failed — try a clearer photo', 'err');
-  }
-}
-
-function prog(pct, msg) {
-  document.getElementById('prog-fill').style.width = pct + '%';
-  document.getElementById('prog-lbl').textContent  = msg;
-}
-
-// ── parse OCR text ──
-function parseText(text) {
-  circuits = [];
-  var lines = text.split('\n').map(function(l){return l.trim();}).filter(function(l){return l.length > 1;});
-
-  // Panel name guess
-  var name = '', loc = '', main = '200', sys = '120_240_1';
-  for (var i = 0; i < Math.min(lines.length, 8); i++) {
-    var u = lines[i].toUpperCase();
-    if (u.includes('PANEL') && lines[i].length < 40) name = lines[i].replace(/panel/i,'').trim();
-    if (u.includes('LOCATION') || u.includes('ROOM') || u.includes('FLOOR')) loc = lines[i];
-  }
-  if (text.match(/208/)) sys = '120_208_3';
-  if (text.match(/480/)) sys = '277_480_3';
-  var mM = text.match(/(\d{2,4})\s*[Aa]\s*(main|mb)/i) || text.match(/(main|mb)[:\-\s]+(\d{2,4})\s*[Aa]/i);
-  if (mM) { var a = parseInt(mM[1]||mM[2]); if ([60,100,125,150,200,225,300,400,600,800,1000,1200].indexOf(a)>-1) main=String(a); }
-
-  document.getElementById('f-name').value = name;
-  document.getElementById('f-loc').value  = loc;
-  document.getElementById('f-sys').value  = sys;
-  document.getElementById('f-main').value = main;
-
-  lines.forEach(function(line) {
-    if (/^(circuit|ckt|breaker|load|description|panel|amps?|poles?|phase|#|no\.)/i.test(line)) return;
-    var m = line.match(/^(\d{1,3})[\s\.\-:]+(.+)/);
-    if (!m) return;
-    var num = parseInt(m[1]);
-    if (num < 1 || num > 120) return;
-    var rest = m[2].trim(), bkr = '20', poles = 1, desc = rest;
-
-    var aM = rest.match(/\b(\d{1,3})[Aa]\b/);
-    if (aM) { bkr = aM[1]; desc = desc.replace(aM[0],'').trim(); }
-    else { var bM = rest.match(/\b(15|20|30|40|50|60|70|80|90|100)\s*$/); if(bM){bkr=bM[1];desc=desc.replace(bM[0],'').trim();} }
-
-    var pM = rest.match(/\b([123])[Pp]\b|\b([123])-?pole/i);
-    if (pM) { poles=parseInt(pM[1]||pM[2]); desc=desc.replace(pM[0],'').trim(); }
-    else if (parseInt(bkr)>=30||/240|dryer|range|hvac|ac\b/i.test(rest)) poles=2;
-
-    desc = desc.replace(/[-_|]{2,}/g,'').replace(/\s{2,}/g,' ').trim();
-    if (!desc || desc.length < 2) desc = 'Circuit ' + num;
-    circuits.push({n:num, poles:poles, bkr:bkr, desc:desc});
   });
 
-  circuits.sort(function(a,b){return a.n-b.n;});
-  document.getElementById('ckt-badge').textContent = circuits.length + ' circuits';
+  // Header row = band where most header words cluster
+  var hdrY=pgH*0.05;
+  if(allHdrWords.length>=2){
+    // Find the Y band with most header hits
+    allHdrWords.sort(function(a,b){return a.w.y0-b.w.y0;});
+    // Use the last (lowest on page) cluster of headers as the real header row
+    // (top of page may have panel name info that incidentally matches)
+    var bands=[];
+    allHdrWords.forEach(function(h){
+      for(var i=0;i<bands.length;i++){
+        if(Math.abs(bands[i].cy-h.w.cy)<pgH*0.03){bands[i].items.push(h);bands[i].cy=bands[i].items.reduce(function(s,x){return s+x.w.cy;},0)/bands[i].items.length;return;}
+      }
+      bands.push({cy:h.w.cy,items:[h]});
+    });
+    bands.sort(function(a,b){return b.items.length-a.items.length;});
+    if(bands[0]){
+      hdrY=Math.max.apply(null,bands[0].items.map(function(h){return h.w.y1;}))+2;
+    }
+  }
+
+  // ── 3. Find the vertical page center split ──
+  // Panel schedules split left/right — find the gap in the middle
+  // Look for the X position with fewest data words (the middle gutter)
+  var dataW=W.filter(function(w){return w.y0>=hdrY;});
+  // Build histogram of word centers across X
+  var BINS=40;
+  var hist=new Array(BINS).fill(0);
+  dataW.forEach(function(w){var b=Math.floor((w.cx/pgW)*BINS);if(b>=0&&b<BINS)hist[b]++;});
+  // Find the emptiest bin in the middle 20%-80% range
+  var midLo=Math.floor(BINS*0.2),midHi=Math.floor(BINS*0.8);
+  var minB=hist[midLo],minI=midLo;
+  for(var bi=midLo;bi<=midHi;bi++){if(hist[bi]<minB){minB=hist[bi];minI=bi;}}
+  var midX=(minI/BINS)*pgW + pgW/(BINS*2); // center of emptiest bin
+
+  // ── 4. Find column X positions for each side using header words ──
+  function buildColMap(xMin,xMax){
+    var sHdrs=allHdrWords.filter(function(h){return h.w.cx>=xMin&&h.w.cx<=xMax;});
+    var cols={};
+    // Group by key, pick the one closest to horizontal center of this side
+    Object.keys(HK).forEach(function(k){
+      var matches=sHdrs.filter(function(h){return h.k===k;});
+      if(matches.length) cols[k]=matches[0].w.cx; // first match
+    });
+    // Fallback heuristics if headers not found
+    var sw=xMax-xMin;
+    if(!cols.ckt)  cols.ckt  = xMin+sw*0.03;
+    if(!cols.poles)cols.poles= xMin+sw*0.10;
+    if(!cols.trip) cols.trip = xMin+sw*0.18;
+    if(!cols.desc) cols.desc = xMin+sw*0.28;
+    return cols;
+  }
+
+  var lCols=buildColMap(0,midX);
+  var rCols=buildColMap(midX,pgW);
+
+  // ── 5. Group words into horizontal rows (below header) ──
+  var rowGap=Math.max(5,pgH*0.012);
+  var rows=[];
+  dataW.forEach(function(w){
+    for(var i=0;i<rows.length;i++){
+      if(Math.abs(rows[i].cy-w.cy)<=rowGap){
+        rows[i].words.push(w);
+        rows[i].cy=rows[i].words.reduce(function(s,x){return s+x.cy;},0)/rows[i].words.length;
+        return;
+      }
+    }
+    rows.push({cy:w.cy,words:[w]});
+  });
+  rows.sort(function(a,b){return a.cy-b.cy;});
+
+  // ── 6. Parse each side using detected column X positions ──
+  var lc=parseSide(rows,lCols,0,midX);
+  var rc=parseSide(rows,rCols,midX,pgW);
+
+  // ── 7. Merge, resolve 2P/3P, sort by circuit number ──
+  var all=lc.concat(rc).sort(function(a,b){return a.n-b.n;});
+  all=resolvePoles(all);
+
+  var meta=getMeta(W,hdrY);
+  return{
+    circuits:all,
+    report:{
+      method:allHdrWords.length>=3?'header-detected':'heuristic',
+      headers:allHdrWords.map(function(h){return h.k;}).filter(function(v,i,a){return a.indexOf(v)===i;}),
+      leftCount:lc.length,rightCount:rc.length,words:W.length,
+      midX:Math.round(midX),hdrY:Math.round(hdrY)
+    },
+    meta:meta
+  };
 }
 
-// ── table ──
-function renderTable() {
-  var tb = document.getElementById('ckt-body');
-  tb.innerHTML = '';
-  circuits.forEach(function(c, i) {
-    var tr = document.createElement('tr');
-    tr.innerHTML =
-      '<td class="cnum">'+(c.n||i+1)+'</td>'+
-      '<td><input class="ti mono" type="number" min="1" max="3" value="'+(c.poles||1)+'" data-i="'+i+'" data-f="poles"/></td>'+
-      '<td><input class="ti mono" type="text" value="'+(c.bkr||'20')+'" data-i="'+i+'" data-f="bkr"/></td>'+
-      '<td><input class="ti" type="text" value="'+esc(c.desc||'')+'" data-i="'+i+'" data-f="desc"/></td>'+
-      '<td><button class="del-btn" data-i="'+i+'">×</button></td>';
+function parseSide(rows,cols,xMin,xMax){
+  var TOL=Math.max(20,(xMax-xMin)*0.08); // tolerance radius around each column center
+
+  function wordsNear(rowWords,colX,tol){
+    return rowWords.filter(function(w){return w.cx>=xMin&&w.cx<xMax&&Math.abs(w.cx-colX)<=tol;});
+  }
+  function wordsFrom(rowWords,fromX){
+    return rowWords.filter(function(w){return w.cx>=fromX&&w.cx<xMax;}).sort(function(a,b){return a.cx-b.cx;});
+  }
+  function txt(ws){return ws.map(function(w){return w.t;}).join(' ').trim();}
+
+  var res=[],pend=null;
+  function flush(){
+    if(pend&&pend.n>0){
+      var d=pend.desc.join(' ').replace(/\s{2,}/g,' ').trim();
+      // Strip stray numbers/single chars from description
+      d=d.replace(/^\d+\s*/,'').replace(/\s+\d+$/,'').trim();
+      res.push({n:pend.n,poles:pend.poles,bkr:cBkr(pend.bkr),desc:d,conf:pend.conf});
+    }
+    pend=null;
+  }
+
+  rows.forEach(function(row){
+    var sw=row.words.filter(function(w){return w.cx>=xMin&&w.cx<xMax;});
+    if(!sw.length)return;
+
+    var cktW =wordsNear(sw,cols.ckt, TOL);
+    var polW =wordsNear(sw,cols.poles,TOL);
+    var trpW =wordsNear(sw,cols.trip, TOL);
+    var dscW =wordsFrom(sw,cols.desc-TOL*0.5);
+
+    // Remove words already assigned to earlier narrow columns from desc
+    var usedX=[cols.ckt,cols.poles,cols.trip];
+    dscW=dscW.filter(function(w){
+      return !usedX.some(function(cx){return Math.abs(w.cx-cx)<=TOL*0.7&&w.cx<cols.desc;});
+    });
+
+    var cktT=txt(cktW), polT=txt(polW), trpT=txt(trpW), dscT=txt(dscW);
+    var cN=pCkt(cktT);
+    var po=pPoles(polT,trpT,dscT);
+    var bk=pBkr(trpT,dscT);
+    var cf=sw.reduce(function(s,w){return s+w.conf;},0)/sw.length;
+
+    if(cN>0){
+      flush();
+      pend={n:cN,poles:po,bkr:bk,desc:dscT?[dscT]:[],conf:cf};
+    } else if(pend){
+      // Continuation row — could be 2P/3P continuation or desc overflow
+      if(dscT&&dscT.length>1)pend.desc.push(dscT);
+      if(po>1&&pend.poles<po)pend.poles=po;
+      if(bk&&!pend.bkr)pend.bkr=bk;
+    }
+  });
+  flush();
+  return res;
+}
+
+// Resolve 2P/3P: if two consecutive circuits share description and one has no desc, merge
+function resolvePoles(circuits){
+  for(var i=0;i<circuits.length-1;i++){
+    var a=circuits[i],b=circuits[i+1];
+    // Consecutive numbers (e.g. 3&4, 5&6) with matching or empty desc → likely 2-pole
+    if(b.n===a.n+1&&a.poles===1&&b.poles===1){
+      var aDesc=a.desc.trim().toUpperCase();
+      var bDesc=b.desc.trim().toUpperCase();
+      if(!bDesc||bDesc===aDesc||(bDesc.length<4&&aDesc.length>3)){
+        a.poles=2;a.desc=a.desc||b.desc;
+        circuits.splice(i+1,1);
+        i--;
+      }
+    }
+    // 3-pole: three consecutive
+    if(i+2<circuits.length){
+      var c=circuits[i+2];
+      if(b.n===a.n+1&&c.n===a.n+2&&a.poles>=2){
+        var cDesc=c.desc.trim().toUpperCase();
+        if(!cDesc||cDesc===a.desc.trim().toUpperCase()){
+          a.poles=3;circuits.splice(i+1,2);i--;
+        }
+      }
+    }
+  }
+  return circuits;
+}
+
+function pCkt(t){if(!t)return 0;var m=t.replace(/[oO]/g,'0').match(/^(\d{1,3})/);if(!m)return 0;var n=parseInt(m[1]);return(n>=1&&n<=120)?n:0;}
+function pPoles(pT,tT,dT){var a=(pT+' '+tT+' '+dT).toUpperCase();if(/\b3[- ]?P(OLE)?\b/.test(a))return 3;if(/\b2[- ]?P(OLE)?\b/.test(a))return 2;if(/\b1[- ]?P(OLE)?\b/.test(a))return 1;var m=pT.match(/^([123])$/);if(m)return parseInt(m[1]);var b=parseInt(tT);if(b>=30&&/dryer|range|hvac|ac\b|oven|240/i.test(dT))return 2;return 1;}
+function pBkr(tT,dT){var v=[10,15,20,25,30,35,40,45,50,60,70,80,90,100,110,125,150,175,200,225,250,300,350,400];var m=tT.replace(/[oO]/g,'0').match(/\b(\d{1,3})\s*[Aa]?\b/);if(m){var n=parseInt(m[1]);if(v.indexOf(n)>-1)return String(n);}var m2=dT.match(/\b(\d{1,3})[Aa]\b/);if(m2){var n2=parseInt(m2[1]);if(v.indexOf(n2)>-1)return String(n2);}return '';}
+function cBkr(b){if(!b)return '20';return String(b).replace(/[Aa]$/,'').trim()||'20';}
+function getMeta(words,hdrY){var top=words.filter(function(w){return w.y1<hdrY;});var txt=top.map(function(w){return w.t;}).join(' ');var m={name:'',location:'',system:'120_240_1',main:'200'};var nm=txt.match(/\b(panel|panelboard|mlp|mdp|lp|pp|ep|dp)[- ]?([a-z0-9\-]+)/i);if(nm)m.name=(nm[1]+' '+nm[2]).trim().toUpperCase();if(/480/i.test(txt))m.system='277_480_3';else if(/208/i.test(txt))m.system='120_208_3';var aM=txt.match(/\b(\d{2,4})\s*[Aa]\b/);if(aM){var a=parseInt(aM[1]);if([60,100,125,150,200,225,300,400,600,800,1000,1200].indexOf(a)>-1)m.main=String(a);}return m;}
+
+function applyP(p){
+  C=p.circuits||[];
+  if(p.meta){if(p.meta.name)id('fn').value=p.meta.name;if(p.meta.location)id('fl').value=p.meta.location;id('fs').value=p.meta.system||'120_240_1';id('fm').value=p.meta.main||'200';}
+  id('cbadge').textContent=C.length+' circuits';
+  var r=p.report||{};
+  var ml=r.method==='header-detected'?'<span class="ok">Column headers detected \u2713</span>':'<span class="wa">Heuristic zones (headers not found)</span>';
+  id('rpt').innerHTML='<div class="rr"><span class="rl">Method</span><span class="rv">'+ml+'</span></div>'+
+    '<div class="rr"><span class="rl">Headers found</span><span class="rv">'+(r.headers&&r.headers.length?r.headers.join(', '):'none')+'</span></div>'+
+    '<div class="rr"><span class="rl">Left circuits</span><span class="rv ok">'+(r.leftCount||0)+'</span></div>'+
+    '<div class="rr"><span class="rl">Right circuits</span><span class="rv ok">'+(r.rightCount||0)+'</span></div>'+
+    '<div class="rr"><span class="rl">Words read</span><span class="rv">'+(r.words||0)+'</span></div>';
+}
+
+function renderTbl(){
+  var tb=id('ctb'); tb.innerHTML='';
+  C.forEach(function(c,i){
+    var tr=document.createElement('tr');
+    if(c.conf&&c.conf<60)tr.className='lc';
+    tr.innerHTML='<td class="cn2">'+(c.n||i+1)+'</td>'+
+      '<td><input class="ti m" type="number" min="1" max="3" value="'+(c.poles||1)+'" data-i="'+i+'" data-f="poles"/></td>'+
+      '<td><input class="ti m" type="text" value="'+e(c.bkr||'20')+'" data-i="'+i+'" data-f="bkr"/></td>'+
+      '<td><input class="ti" type="text" value="'+e(c.desc||'')+'" data-i="'+i+'" data-f="desc"/></td>'+
+      '<td><button class="db" data-i="'+i+'">\xd7</button></td>';
     tb.appendChild(tr);
   });
-
-  tb.querySelectorAll('.ti').forEach(function(el) {
-    el.addEventListener('change', function() {
-      var i = parseInt(this.dataset.i), f = this.dataset.f;
-      if (f==='poles') circuits[i].poles=parseInt(this.value)||1;
-      else if (f==='bkr') circuits[i].bkr=this.value.replace(/[Aa]$/,'').trim();
-      else circuits[i][f]=this.value;
-      updateJSON();
-    });
-  });
-
-  tb.querySelectorAll('.del-btn').forEach(function(el) {
-    el.addEventListener('click', function() {
-      circuits.splice(parseInt(this.dataset.i), 1);
-      renderTable();
-      updateJSON();
-      document.getElementById('ckt-badge').textContent = circuits.length + ' circuits';
-    });
-  });
+  tb.querySelectorAll('.ti').forEach(function(el){el.addEventListener('change',function(){var i=parseInt(this.dataset.i),f=this.dataset.f;if(f==='poles')C[i].poles=parseInt(this.value)||1;else if(f==='bkr')C[i].bkr=this.value.replace(/[Aa]$/,'').trim();else C[i][f]=this.value;updateJSON();});});
+  tb.querySelectorAll('.db').forEach(function(el){el.addEventListener('click',function(){C.splice(parseInt(this.dataset.i),1);renderTbl();updateJSON();id('cbadge').textContent=C.length+' circuits';});});
 }
 
-function addRow() {
-  var next = circuits.length > 0 ? (circuits[circuits.length-1].n||circuits.length)+1 : 1;
-  circuits.push({n:next, poles:1, bkr:'20', desc:''});
-  renderTable();
-  updateJSON();
-  setTimeout(function() {
-    var rows = document.querySelectorAll('#ckt-body tr');
-    var last = rows[rows.length-1];
-    if (last) { var inp = last.querySelectorAll('.ti')[2]; if(inp) inp.focus(); }
-  }, 50);
-}
-
-// ── build schema ──
-function buildRaw() {
-  return {
-    mode:'print',
-    name:document.getElementById('f-name').value.trim(),
-    location:document.getElementById('f-loc').value.trim(),
-    system:document.getElementById('f-sys').value,
-    main:document.getElementById('f-main').value,
-    count:String(circuits.length),
-    sections:'1',
-    exportFmt:'schedule',
-    qrUrl:'',
-    circuits:circuits.map(function(c){return {poles:c.poles||1,bkr:c.bkr||'20',desc:c.desc||'',load:''};})
-  };
-}
-
-function updateJSON() {
-  document.getElementById('json-out').value = JSON.stringify(buildRaw(), null, 2);
-}
-
-// ── exports ──
-function copyJSON() {
-  var txt = document.getElementById('json-out').value;
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(txt).then(function(){toast('JSON copied ✓','ok');}).catch(function(){fbCopy(txt);});
-  } else fbCopy(txt);
-}
-function fbCopy(txt) {
-  var ta = document.createElement('textarea');
-  ta.value = txt; ta.style.cssText = 'position:fixed;opacity:0;';
-  document.body.appendChild(ta); ta.select();
-  try { document.execCommand('copy'); toast('Copied ✓','ok'); } catch(e){toast('Copy failed','err');}
-  document.body.removeChild(ta);
-}
-
-function exportCSV() {
-  var rows = [['Circuit','Poles','Breaker','Description']];
-  circuits.forEach(function(c){rows.push([c.n,c.poles,c.bkr+'A','"'+(c.desc||'').replace(/"/g,'""')+'"']);});
-  var name = (document.getElementById('f-name').value.trim()||'panel').replace(/\s+/g,'-').toLowerCase();
-  var a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(rows.map(function(r){return r.join(',');}).join('\n'));
-  a.download = name + '-schedule.csv';
-  a.click();
-  toast('CSV downloaded','ok');
-}
-
-function saveLocal() {
-  var saves = getSaves();
-  saves.unshift({id:Date.now(), date:new Date().toLocaleDateString(), raw:buildRaw()});
-  if (saves.length > 20) saves = saves.slice(0,20);
-  localStorage.setItem('ps_saves', JSON.stringify(saves));
-  toast('Saved ✓','ok');
-  loadSaved();
-}
-
-// ── saved ──
-function getSaves() { try{return JSON.parse(localStorage.getItem('ps_saves')||'[]');}catch(e){return[];} }
-
-function loadSaved() {
-  var saves = getSaves();
-  var card  = document.getElementById('card-saved');
-  var list  = document.getElementById('saved-list');
-  if (!saves.length) { card.style.display='none'; return; }
-  card.style.display = '';
-  list.innerHTML = saves.map(function(s,i) {
-    var n = (s.raw&&s.raw.name)||'Unnamed';
-    var c = (s.raw&&s.raw.circuits)?s.raw.circuits.length:0;
-    return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);">'+
-      '<div style="flex:1;"><div style="font-size:12px;font-weight:600;">'+esc(n)+'</div>'+
-      '<div style="font-size:10px;color:var(--muted);font-family:\'Roboto Mono\',monospace;">'+s.date+' · '+c+' circuits</div></div>'+
-      '<button class="btn btn-gray btn-sm" onclick="restoreSave('+i+')">Load</button>'+
-      '<button class="del-btn" onclick="deleteSave('+i+')">×</button>'+
-    '</div>';
-  }).join('');
-}
-
-function restoreSave(i) {
-  var s = getSaves()[i];
-  if (!s||!s.raw) return;
-  circuits = (s.raw.circuits||[]).map(function(c,j){return{n:j+1,poles:c.poles||1,bkr:c.bkr||'20',desc:c.desc||''};});
-  document.getElementById('f-name').value = s.raw.name||'';
-  document.getElementById('f-loc').value  = s.raw.location||'';
-  document.getElementById('f-sys').value  = s.raw.system||'120_240_1';
-  document.getElementById('f-main').value = s.raw.main||'200';
-  document.getElementById('ckt-badge').textContent = circuits.length+' circuits';
-  document.getElementById('card2').style.display = '';
-  renderTable(); updateJSON();
-  toast('Loaded: '+(s.raw.name||'Panel'),'ok');
-}
-
-function deleteSave(i) {
-  var saves=getSaves(); saves.splice(i,1);
-  localStorage.setItem('ps_saves',JSON.stringify(saves));
-  loadSaved(); toast('Deleted','');
-}
-
-// ── reset ──
-function resetAll() {
-  imgData = null; circuits = []; rawText = ''; rawOpen = false;
-  document.getElementById('inp-cam').value = '';
-  document.getElementById('inp-lib').value = '';
-  document.getElementById('preview-img').src = '';
-  document.getElementById('zone-btns').style.display    = '';
-  document.getElementById('zone-preview').style.display = 'none';
-  document.getElementById('zone-prog').style.display    = 'none';
-  document.getElementById('card2').style.display        = 'none';
-  document.getElementById('s1num').className  = 'card-num';
-  document.getElementById('s1num').textContent = '1';
-  document.getElementById('btn-scan').disabled = false;
-  document.getElementById('raw-box').style.display = 'none';
-  document.getElementById('raw-toggle').textContent = '▶ Show raw OCR text';
-}
-
-// ── helpers ──
-function toast(msg, type) {
-  var t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'show '+(type||'');
-  clearTimeout(t._t);
-  t._t = setTimeout(function(){t.className=type||'';}, 2800);
-}
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-</script>
+function addRow(){var n=C.length>0?(C[C.length-1].n||C.length)+1:1;C.push({n:n,poles:1,bkr:'20',desc:'',conf:100});renderTbl();updateJSON();setTimeout(function(){var rows=document.querySelectorAll('#ctb tr');var last=rows[rows.length-1];if(last){var inp=last.querySelectorAll('.ti')[2];if(inp)inp.focus();}},50);}
+function bRaw(){return{mode:'print',name:id('fn').value.trim(),location:id('fl').value.trim(),system:id('fs').value,main:id('fm').value,count:String(C.length),sections:'1',exportFmt:'schedule',qrUrl:'',circuits:C.map(function(c){return{poles:c.poles||1,bkr:c.bkr||'20',desc:c.desc||'',load:''};})};} 
+function updateJSON(){id('jout').value=JSON.stringify(bRaw(),null,2);}
+function cpJSON(){var t=id('jout').value;if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){toast('JSON copied \u2713','ok');}).catch(function(){fbCp(t);});}else fbCp(t);}
+function fbCp(t){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0;';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('Copied \u2713','ok');}catch(ex){toast('Copy failed','er');}document.body.removeChild(ta);}
+function xCSV(){var rows=[['Circuit','Poles','Breaker','Description']];C.forEach(function(c){rows.push([c.n,c.poles,c.bkr+'A','"'+(c.desc||'').replace(/"/g,'""')+'"']);});var nm=(id('fn').value.trim()||'panel').replace(/\s+/g,'-').toLowerCase();var a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.map(function(r){return r.join(',');}).join('\n'));a.download=nm+'-schedule.csv';a.click();toast('CSV downloaded','ok');}
+function saveLoc(){var s=gS();s.unshift({id:Date.now(),date:new Date().toLocaleDateString(),raw:bRaw()});if(s.length>20)s=s.slice(0,20);localStorage.setItem('ps_saves',JSON.stringify(s));toast('Saved \u2713','ok');loadSaved();}
+function gS(){try{return JSON.parse(localStorage.getItem('ps_saves')||'[]');}catch(ex){return[];}}
+function loadSaved(){var s=gS(),card=id('csaved'),list=id('slist');if(!s.length){card.style.display='none';return;}card.style.display='';list.innerHTML=s.map(function(sv,i){var n=(sv.raw&&sv.raw.name)||'Unnamed',c=(sv.raw&&sv.raw.circuits)?sv.raw.circuits.length:0;return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);"><div style="flex:1;"><div style="font-size:12px;font-weight:600;">'+e(n)+'</div><div style="font-size:10px;color:var(--muted);font-family:\'Roboto Mono\',monospace;">'+sv.date+' &middot; '+c+' circuits</div></div><button class="btn bg bsm" onclick="rSave('+i+')">Load</button><button class="db" onclick="dSave('+i+')">\xd7</button></div>';}).join('');}
+function rSave(i){var s=gS()[i];if(!s||!s.raw)return;C=(s.raw.circuits||[]).map(function(c,j){return{n:j+1,poles:c.poles||1,bkr:c.bkr||'20',desc:c.desc||'',conf:100};});id('fn').value=s.raw.name||'';id('fl').value=s.raw.location||'';id('fs').value=s.raw.system||'120_240_1';id('fm').value=s.raw.main||'200';id('cbadge').textContent=C.length+' circuits';id('card2').style.display='';renderTbl();updateJSON();toast('Loaded: '+(s.raw.name||'Panel'),'ok');}
+function dSave(i){var s=gS();s.splice(i,1);localStorage.setItem('ps_saves',JSON.stringify(s));loadSaved();toast('Deleted','');}
+function reset(){D=null;C=[];R='';ro=false;id('icam').value='';id('ilib').value='';id('pimg').src='';id('zbtns').style.display='';id('zprev').style.display='none';id('zprog').style.display='none';id('card2').style.display='none';id('s1').className='cn';id('s1').textContent='1';id('bscan').disabled=false;id('rbox').style.display='none';id('rtog').textContent='\u25b6 Show raw OCR text';}
+function togRaw(){ro=!ro;id('rbox').style.display=ro?'':'none';id('rtog').textContent=(ro?'\u25bc Hide':'\u25b6 Show')+' raw OCR text';}
+function prog(p,m){id('pfill').style.width=p+'%';id('plbl').textContent=m;}
+function toast(msg,type){var t=id('toast');t.textContent=msg;t.className='show '+(type||'');clearTimeout(t._t);t._t=setTimeout(function(){t.className=type||'';},2800);}
+function e(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+<\/script>
 </body>
 </html>
