@@ -175,6 +175,7 @@
   .btn-export:hover:not(:disabled) { background: var(--surface); color: var(--text); }
 
   /* ── Progress ── */
+  #preview-wrap  { display: none; margin-top: 14px; }
   #progress-wrap { display: none; margin-top: 16px; }
   .progress-bar-bg {
     background: var(--surface);
@@ -436,6 +437,15 @@
     <strong>How it works:</strong> Take a photo or upload an image of a panel schedule. Tesseract.js reads the text directly in your browser — <strong>nothing is uploaded anywhere.</strong> Review and edit the parsed circuits, then export or copy to your panel schedule tool.
   </div>
 
+  <div id="tesseract-status" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:11px;color:var(--amber);margin-bottom:14px;font-family:'Roboto Mono',monospace;">
+    ⏳ Loading OCR engine...
+  </div>
+
+  <div id="file-warning" style="display:none;background:var(--red-bg);border:1px solid var(--red-bdr);border-radius:10px;padding:10px 14px;font-size:11px;color:#fca5a5;margin-bottom:14px;line-height:1.6;">
+    <strong>⚠️ Opening via file:// — OCR may not work in Chrome.</strong><br/>
+    Upload this file to GitHub Pages, or open it with VS Code Live Server / any local server. Firefox handles file:// fine.
+  </div>
+
   <!-- STEP 1: Upload -->
   <div class="step-card">
     <div class="step-header">
@@ -443,11 +453,23 @@
       <div class="step-title">Capture or Upload Panel Schedule</div>
     </div>
     <div class="step-body">
-      <div class="upload-zone" id="upload-zone">
-        <input type="file" id="file-input" accept="image/*" capture="environment" onchange="handleFile(this)"/>
-        <div class="upload-icon">📷</div>
-        <div class="upload-label">Tap to take photo or choose image</div>
-        <div class="upload-hint">JPG · PNG · WEBP · HEIC — any image format</div>
+      <!-- Hidden inputs — no capture attr on desktop input -->
+      <input type="file" id="file-input-camera" accept="image/*" capture="environment" style="display:none;"/>
+      <input type="file" id="file-input-gallery" accept="image/*" style="display:none;"/>
+
+      <div id="upload-zone">
+        <div style="display:flex;gap:10px;margin-bottom:12px;">
+          <button class="btn btn-primary" style="flex:1;" onclick="document.getElementById('file-input-camera').click()">
+            📷 Take Photo
+          </button>
+          <button class="btn btn-ghost" style="flex:1;" onclick="document.getElementById('file-input-gallery').click()">
+            🖼 Upload Image
+          </button>
+        </div>
+        <div style="text-align:center;padding:18px 0 6px;">
+          <div style="font-size:11px;color:var(--muted);font-family:'Roboto Mono',monospace;">JPG · PNG · WEBP · HEIC — any image format</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:4px;">Nothing leaves your device</div>
+        </div>
       </div>
 
       <div id="preview-wrap">
@@ -578,8 +600,23 @@
 
 <div id="toast"></div>
 
-<!-- Tesseract.js from CDN — runs 100% in browser, no server needed -->
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<!-- Tesseract.js — runs 100% in browser -->
+<script>
+  // Load Tesseract from unpkg (more file:// friendly than jsdelivr)
+  (function() {
+    var s = document.createElement('script');
+    s.src = 'https://unpkg.com/tesseract.js@5.0.4/dist/tesseract.min.js';
+    s.crossOrigin = 'anonymous';
+    s.onload = function() {
+      document.getElementById('tesseract-status').style.display = 'none';
+    };
+    s.onerror = function() {
+      document.getElementById('tesseract-status').textContent = '⚠️ Could not load OCR engine. Open this file via a web server or GitHub Pages — not directly from file://';
+      document.getElementById('tesseract-status').style.color = '#fca5a5';
+    };
+    document.head.appendChild(s);
+  })();
+</script>
 
 <script>
 // ─────────────────────────────────────────────
@@ -591,20 +628,39 @@ var _rawText    = '';
 var _rawVisible = false;
 
 // ─────────────────────────────────────────────
-//  File handling
+//  File handling — robust cross-browser
 // ─────────────────────────────────────────────
-function handleFile(input) {
-  var file = input.files[0];
-  if (!file) return;
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    _imgDataUrl = e.target.result;
-    document.getElementById('preview-img').src = _imgDataUrl;
-    document.getElementById('preview-wrap').style.display = '';
-    document.getElementById('upload-zone').style.display  = 'none';
-  };
-  reader.readAsDataURL(file);
+function initFileInputs() {
+  var camera  = document.getElementById('file-input-camera');
+  var gallery = document.getElementById('file-input-gallery');
+
+  function handleInput(input) {
+    input.addEventListener('change', function() {
+      var file = this.files && this.files[0];
+      if (!file) { showToast('No file selected', 'error'); return; }
+      // Reset value so same file can be re-selected
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        _imgDataUrl = e.target.result;
+        var img = document.getElementById('preview-img');
+        img.src = _imgDataUrl;
+        img.onload = function() {
+          document.getElementById('preview-wrap').style.display = '';
+          document.getElementById('upload-zone').style.display  = 'none';
+          document.getElementById('scan-btn').disabled = false;
+          showToast('Image loaded — tap Scan', 'success');
+        };
+      };
+      reader.onerror = function() { showToast('Could not read file', 'error'); };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  handleInput(camera);
+  handleInput(gallery);
 }
+
+function handleFile() {} // legacy stub — no longer used
 
 // ─────────────────────────────────────────────
 //  OCR
@@ -956,14 +1012,16 @@ function resetAll() {
   _imgDataUrl = null;
   _circuits   = [];
   _rawText    = '';
-  document.getElementById('file-input').value    = '';
+  // Reset both file inputs so same file can be re-selected
+  document.getElementById('file-input-camera').value  = '';
+  document.getElementById('file-input-gallery').value = '';
   document.getElementById('preview-wrap').style.display  = 'none';
   document.getElementById('upload-zone').style.display   = '';
   document.getElementById('progress-wrap').style.display = 'none';
   document.getElementById('step2-card').style.display    = 'none';
-  document.getElementById('step1-num').className = 'step-num';
+  document.getElementById('step1-num').className  = 'step-num';
   document.getElementById('step1-num').textContent = '1';
-  document.querySelector('.step-card .btn-primary').disabled = false;
+  document.getElementById('scan-btn').disabled = false;
 }
 
 function showToast(msg, type) {
@@ -982,7 +1040,16 @@ function escAttr(s) {
 
 // Reload saved scans on page load
 window.addEventListener('DOMContentLoaded', function() {
+  initFileInputs();
   loadSavedScans();
+
+  // Show loading status for tesseract
+  document.getElementById('tesseract-status').style.display = '';
+
+  // Detect file:// and warn Chrome users
+  if (window.location.protocol === 'file:') {
+    document.getElementById('file-warning').style.display = '';
+  }
   // Allow typing in json-preview to re-select text easily
   document.getElementById('json-preview') && document.getElementById('json-preview').addEventListener('click', function() { this.select(); });
 });
