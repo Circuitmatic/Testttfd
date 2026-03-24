@@ -2,412 +2,103 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-<title>Panel Schedule Scanner</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Panel Scanner</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
 <style>
-  :root {
-    --bg:        #13161f;
-    --card:      #1a1e2b;
-    --surface:   #1f2435;
-    --surface2:  #252c3e;
-    --border:    #2a3148;
-    --border2:   #333d54;
-    --text:      #dde6f0;
-    --sub:       #a0bbd0;
-    --muted:     #6b7280;
-    --accent:    #1e40af;
-    --accent-hi: #3b82f6;
-    --accent-mid:#172554;
-    --red:       #dc2626;
-    --red-bg:    #2a1010;
-    --red-bdr:   #4d1a1a;
-    --green:     #16a34a;
-    --green-bg:  #0a1f0f;
-    --green-bdr: #0d3518;
-    --amber:     #d97706;
-  }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { height: 100%; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', system-ui, sans-serif;
-    min-height: 100%;
-    padding-bottom: 40px;
-  }
+:root {
+  --bg:#13161f; --card:#1a1e2b; --surface:#1f2435; --surface2:#252c3e;
+  --border:#2a3148; --border2:#333d54;
+  --text:#dde6f0; --sub:#a0bbd0; --muted:#6b7280;
+  --accent:#1e40af; --accent-hi:#3b82f6; --accent-mid:#172554;
+  --red:#dc2626; --red-bg:#2a1010; --red-bdr:#4d1a1a;
+  --green:#16a34a; --green-bg:#0a1f0f; --green-bdr:#0d3518;
+  --amber:#d97706;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding-bottom:60px;}
 
-  /* ── Header ── */
-  .header {
-    background: var(--card);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .header-icon {
-    width: 36px; height: 36px;
-    background: var(--accent-mid);
-    border: 1px solid var(--accent);
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
-  }
-  .header-title {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--accent-hi);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-  .header-sub {
-    font-size: 10px;
-    color: var(--muted);
-    font-family: 'Roboto Mono', monospace;
-    margin-top: 1px;
-  }
+.header{background:var(--card);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;}
+.header-icon{width:36px;height:36px;background:var(--accent-mid);border:1px solid var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.header-title{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:var(--accent-hi);letter-spacing:2px;}
+.header-sub{font-size:10px;color:var(--muted);font-family:'Roboto Mono',monospace;margin-top:1px;}
 
-  /* ── Main container ── */
-  .container { max-width: 680px; margin: 0 auto; padding: 20px 16px; }
+.wrap{max-width:640px;margin:0 auto;padding:20px 16px;}
 
-  /* ── Step cards ── */
-  .step-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    margin-bottom: 14px;
-    overflow: hidden;
-  }
-  .step-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 14px 16px 12px;
-    border-bottom: 1px solid var(--border);
-  }
-  .step-num {
-    width: 24px; height: 24px;
-    background: var(--accent-mid);
-    border: 1px solid var(--accent);
-    border-radius: 50%;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--accent-hi);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    font-family: 'Roboto Mono', monospace;
-  }
-  .step-num.done { background: var(--green-bg); border-color: var(--green-bdr); color: var(--green); }
-  .step-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-  }
-  .step-body { padding: 16px; }
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:14px;overflow:hidden;}
+.card-head{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);}
+.card-num{width:24px;height:24px;background:var(--accent-mid);border:1px solid var(--accent);border-radius:50%;font-size:11px;font-weight:700;color:var(--accent-hi);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Roboto Mono',monospace;}
+.card-num.done{background:var(--green-bg);border-color:var(--green-bdr);color:var(--green);}
+.card-title{font-size:13px;font-weight:600;}
+.card-body{padding:16px;}
 
-  /* ── Upload / Camera area ── */
-  #upload-zone {
-    border: 2px dashed var(--border2);
-    border-radius: 10px;
-    padding: 20px;
-  }
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 18px;border-radius:10px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;border:none;transition:opacity .15s;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn-blue{background:#1e40af;color:#fff;width:100%;}
+.btn-blue:hover:not(:disabled){background:#2563eb;}
+.btn-gray{background:var(--surface2);color:var(--sub);border:1px solid var(--border);width:100%;}
+.btn-gray:hover:not(:disabled){background:var(--surface);color:var(--text);}
+.btn-green{background:#166534;color:#bbf7d0;border:1px solid #16a34a;width:100%;}
+.btn-sm{font-size:11px;padding:7px 12px;width:auto;}
 
-  /* ── Preview ── */
-  #preview-wrap { display: none; margin-top: 14px; }
-  #preview-img {
-    width: 100%;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    max-height: 320px;
-    object-fit: contain;
-    background: #000;
-  }
-  .preview-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 10px;
-  }
+.btn-row{display:flex;gap:8px;}
+.btn-row .btn{flex:1;}
 
-  /* ── Buttons ── */
-  .btn {
-    padding: 10px 18px;
-    border-radius: 10px;
-    font-size: 12px;
-    font-weight: 600;
-    font-family: 'Inter', sans-serif;
-    cursor: pointer;
-    border: none;
-    transition: opacity .15s, transform .1s;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .btn:active { transform: scale(.97); }
-  .btn:disabled { opacity: .4; cursor: not-allowed; }
-  .btn-primary { background: #1e40af; color: #fff; flex: 1; justify-content: center; }
-  .btn-primary:hover:not(:disabled) { background: #2563eb; }
-  .btn-ghost {
-    background: var(--surface);
-    color: var(--sub);
-    border: 1px solid var(--border);
-    flex: 0 0 auto;
-  }
-  .btn-ghost:hover:not(:disabled) { background: var(--surface2); }
-  .btn-success { background: #166534; color: #bbf7d0; border: 1px solid #16a34a; flex: 1; justify-content: center; }
-  .btn-success:hover:not(:disabled) { background: #15803d; }
-  .btn-export { background: var(--surface2); color: var(--sub); border: 1px solid var(--border); flex: 1; justify-content: center; font-size: 11px; }
-  .btn-export:hover:not(:disabled) { background: var(--surface); color: var(--text); }
+.hint{font-size:11px;color:var(--muted);font-family:'Roboto Mono',monospace;text-align:center;margin-top:10px;}
 
-  /* ── Progress ── */
-  #preview-wrap  { display: none; margin-top: 14px; }
-  #progress-wrap { display: none; margin-top: 16px; }
-  .progress-bar-bg {
-    background: var(--surface);
-    border-radius: 999px;
-    height: 6px;
-    overflow: hidden;
-    margin-bottom: 8px;
-  }
-  .progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #1e40af, #3b82f6);
-    border-radius: 999px;
-    width: 0%;
-    transition: width .3s ease;
-  }
-  .progress-status {
-    font-size: 11px;
-    color: var(--muted);
-    font-family: 'Roboto Mono', monospace;
-    text-align: center;
-  }
+/* progress */
+.prog-wrap{margin-top:14px;}
+.prog-bg{background:var(--surface);border-radius:999px;height:6px;overflow:hidden;margin-bottom:8px;}
+.prog-fill{height:100%;background:linear-gradient(90deg,#1e40af,#3b82f6);border-radius:999px;width:0%;transition:width .3s;}
+.prog-lbl{font-size:11px;color:var(--muted);font-family:'Roboto Mono',monospace;text-align:center;}
 
-  /* ── Raw OCR output ── */
-  #raw-wrap { display: none; }
-  #raw-text {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px;
-    font-family: 'Roboto Mono', monospace;
-    font-size: 10px;
-    color: var(--sub);
-    white-space: pre-wrap;
-    max-height: 180px;
-    overflow-y: auto;
-    line-height: 1.6;
-  }
-  .raw-toggle {
-    font-size: 10px;
-    color: var(--muted);
-    cursor: pointer;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    margin-top: 8px;
-    display: inline-block;
-    font-family: 'Roboto Mono', monospace;
-  }
+/* preview */
+#preview-img{width:100%;border-radius:8px;border:1px solid var(--border);max-height:280px;object-fit:contain;background:#000;display:block;margin-bottom:12px;}
 
-  /* ── Review Table ── */
-  #review-wrap { display: none; }
-  .review-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .review-title { font-size: 13px; font-weight: 600; }
-  .review-count {
-    font-size: 10px;
-    color: var(--muted);
-    font-family: 'Roboto Mono', monospace;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 3px 8px;
-  }
+/* info fields */
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.field label{display:block;font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;font-family:'Roboto Mono',monospace;}
+.field input,.field select{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;font-family:'Inter',sans-serif;padding:8px 10px;outline:none;}
+.field input:focus,.field select:focus{border-color:var(--accent-hi);}
+.field select option{background:var(--surface2);}
 
-  /* Panel info fields */
-  .info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-  .info-field label {
-    display: block;
-    font-size: 9px;
-    font-weight: 700;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: .6px;
-    margin-bottom: 4px;
-    font-family: 'Roboto Mono', monospace;
-  }
-  .info-field input, .info-field select {
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    font-size: 12px;
-    font-family: 'Inter', sans-serif;
-    padding: 8px 10px;
-    outline: none;
-    transition: border-color .15s;
-  }
-  .info-field input:focus, .info-field select:focus { border-color: var(--accent-hi); }
-  .info-field select option { background: var(--surface2); }
+/* table */
+.tbl-wrap{border:1px solid var(--border);border-radius:10px;overflow:hidden;max-height:400px;overflow-y:auto;margin-bottom:10px;}
+table{width:100%;border-collapse:collapse;}
+thead th{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-family:'Roboto Mono',monospace;padding:7px 8px;background:var(--surface);text-align:left;position:sticky;top:0;}
+tbody tr{border-top:1px solid var(--border);}
+tbody td{padding:3px 4px;vertical-align:middle;}
+.cnum{font-family:'Roboto Mono',monospace;font-size:11px;color:var(--muted);text-align:center;width:28px;padding-left:8px;}
+.ti{width:100%;background:transparent;border:1px solid transparent;border-radius:6px;color:var(--text);font-size:11px;font-family:'Inter',sans-serif;padding:5px 6px;outline:none;}
+.ti:focus{border-color:var(--accent-hi);background:var(--surface);}
+.ti.mono{font-family:'Roboto Mono',monospace;text-align:center;}
+.del-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;padding:4px 8px;line-height:1;}
+.del-btn:hover{color:var(--red);}
+.add-btn{width:100%;background:var(--surface);border:1px dashed var(--border2);border-radius:8px;color:var(--muted);font-size:11px;font-family:'Inter',sans-serif;padding:8px;cursor:pointer;margin-bottom:14px;}
+.add-btn:hover{background:var(--surface2);color:var(--text);}
 
-  /* Circuit table */
-  .circuit-table { width: 100%; border-collapse: collapse; }
-  .circuit-table thead th {
-    font-size: 9px;
-    font-weight: 700;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: .6px;
-    font-family: 'Roboto Mono', monospace;
-    padding: 6px 8px;
-    text-align: left;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-  }
-  .circuit-table thead th:first-child { border-radius: 8px 0 0 0; }
-  .circuit-table thead th:last-child { border-radius: 0 8px 0 0; }
-  .circuit-table tbody tr { border-bottom: 1px solid var(--border); }
-  .circuit-table tbody tr:last-child { border-bottom: none; }
-  .circuit-table tbody td { padding: 4px 4px; vertical-align: middle; }
-  .circuit-table tbody td:first-child { padding-left: 8px; }
+/* raw text */
+.raw-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:'Roboto Mono',monospace;font-size:10px;color:var(--sub);white-space:pre-wrap;max-height:160px;overflow-y:auto;line-height:1.6;margin-top:8px;}
+.raw-toggle{font-size:10px;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px;font-family:'Roboto Mono',monospace;}
 
-  .ckt-num {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    width: 28px;
-    text-align: center;
-  }
-  .tbl-input {
-    width: 100%;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 6px;
-    color: var(--text);
-    font-size: 11px;
-    font-family: 'Inter', sans-serif;
-    padding: 5px 6px;
-    outline: none;
-    transition: border-color .15s, background .15s;
-  }
-  .tbl-input:focus { border-color: var(--accent-hi); background: var(--surface); }
-  .tbl-input.bkr { width: 52px; font-family: 'Roboto Mono', monospace; text-align: center; }
-  .tbl-input.poles { width: 36px; font-family: 'Roboto Mono', monospace; text-align: center; }
+/* json out */
+.json-out{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--sub);font-family:'Roboto Mono',monospace;font-size:9px;padding:8px;resize:none;height:80px;outline:none;line-height:1.6;}
 
-  .row-del {
-    background: none;
-    border: none;
-    color: var(--muted);
-    cursor: pointer;
-    font-size: 14px;
-    padding: 4px 6px;
-    border-radius: 5px;
-    line-height: 1;
-    transition: color .15s;
-  }
-  .row-del:hover { color: var(--red); }
+/* toast */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:10px 18px;font-size:12px;color:var(--text);transition:transform .3s;z-index:999;white-space:nowrap;pointer-events:none;}
+#toast.show{transform:translateX(-50%) translateY(0);}
+#toast.ok{border-color:var(--green-bdr);color:#86efac;}
+#toast.err{border-color:var(--red-bdr);color:#fca5a5;}
 
-  .add-row-btn {
-    width: 100%;
-    background: var(--surface);
-    border: 1px dashed var(--border2);
-    border-radius: 8px;
-    color: var(--muted);
-    font-size: 11px;
-    font-family: 'Inter', sans-serif;
-    padding: 8px;
-    cursor: pointer;
-    margin-top: 8px;
-    transition: background .15s, color .15s;
-  }
-  .add-row-btn:hover { background: var(--surface2); color: var(--text); }
+.badge{display:inline-block;font-size:9px;font-family:'Roboto Mono',monospace;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--accent-mid);color:var(--accent-hi);border:1px solid var(--accent);}
+.section-label{font-size:11px;font-weight:600;margin-bottom:8px;color:var(--sub);}
+.divider{height:1px;background:var(--border);margin:14px 0;}
 
-  /* ── Action row ── */
-  .action-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 14px;
-    flex-wrap: wrap;
-  }
-
-  /* ── Status / Toast ── */
-  #toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    border-radius: 10px;
-    padding: 10px 18px;
-    font-size: 12px;
-    color: var(--text);
-    transition: transform .3s ease;
-    z-index: 999;
-    white-space: nowrap;
-    pointer-events: none;
-  }
-  #toast.show { transform: translateX(-50%) translateY(0); }
-  #toast.success { border-color: var(--green-bdr); color: #86efac; }
-  #toast.error { border-color: var(--red-bdr); color: #fca5a5; }
-
-  /* ── Info box ── */
-  .info-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 14px;
-    font-size: 11px;
-    color: var(--sub);
-    line-height: 1.6;
-    margin-bottom: 14px;
-  }
-  .info-box strong { color: var(--text); }
-
-  /* ── Scrollable table wrapper ── */
-  .table-scroll {
-    overflow-x: auto;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    max-height: 420px;
-    overflow-y: auto;
-  }
-
-  /* ── Badge ── */
-  .badge {
-    display: inline-block;
-    font-size: 9px;
-    font-family: 'Roboto Mono', monospace;
-    font-weight: 700;
-    padding: 2px 7px;
-    border-radius: 999px;
-    letter-spacing: .4px;
-    text-transform: uppercase;
-  }
-  .badge-blue { background: var(--accent-mid); color: var(--accent-hi); border: 1px solid var(--accent); }
-  .badge-green { background: var(--green-bg); color: #86efac; border: 1px solid var(--green-bdr); }
-
-  @media (max-width: 480px) {
-    .info-grid { grid-template-columns: 1fr; }
-    .action-row { flex-direction: column; }
-    .btn { font-size: 13px; padding: 12px 16px; }
-  }
+@media(max-width:480px){
+  .field-grid{grid-template-columns:1fr;}
+  .btn-row{flex-direction:column;}
+}
 </style>
 </head>
 <body>
@@ -416,632 +107,472 @@
   <div class="header-icon">⚡</div>
   <div>
     <div class="header-title">Panel Scanner</div>
-    <div class="header-sub">OCR · Offline · No data leaves device</div>
+    <div class="header-sub">OCR · Offline · Nothing leaves your device</div>
   </div>
 </div>
 
-<div class="container">
+<div class="wrap">
 
-  <div class="info-box">
-    <strong>How it works:</strong> Take a photo or upload an image of a panel schedule. Tesseract.js reads the text directly in your browser — <strong>nothing is uploaded anywhere.</strong> Review and edit the parsed circuits, then export or copy to your panel schedule tool.
-  </div>
-
-  <div id="tesseract-status" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:11px;color:var(--amber);margin-bottom:14px;font-family:'Roboto Mono',monospace;">
-    ⏳ Loading OCR engine...
-  </div>
-
-  <div id="file-warning" style="display:none;background:var(--red-bg);border:1px solid var(--red-bdr);border-radius:10px;padding:10px 14px;font-size:11px;color:#fca5a5;margin-bottom:14px;line-height:1.6;">
-    <strong>⚠️ Opening via file:// — OCR may not work in Chrome.</strong><br/>
-    Upload this file to GitHub Pages, or open it with VS Code Live Server / any local server. Firefox handles file:// fine.
-  </div>
-
-  <!-- STEP 1: Upload -->
-  <div class="step-card">
-    <div class="step-header">
-      <div class="step-num" id="step1-num">1</div>
-      <div class="step-title">Capture or Upload Panel Schedule</div>
+  <!-- STEP 1 -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-num" id="s1num">1</div>
+      <div class="card-title">Capture or Upload Panel Schedule</div>
     </div>
-    <div class="step-body">
-      <!-- Hidden inputs — no capture attr on desktop input -->
-      <input type="file" id="file-input-camera" accept="image/*" capture="environment" style="display:none;"/>
-      <input type="file" id="file-input-gallery" accept="image/*" style="display:none;"/>
+    <div class="card-body">
 
-      <div id="upload-zone">
-        <div style="display:flex;gap:10px;margin-bottom:12px;">
-          <button class="btn btn-primary" style="flex:1;" onclick="document.getElementById('file-input-camera').click()">
-            📷 Take Photo
-          </button>
-          <button class="btn btn-ghost" style="flex:1;" onclick="document.getElementById('file-input-gallery').click()">
-            🖼 Upload Image
-          </button>
+      <!-- hidden file inputs -->
+      <input type="file" id="inp-cam" accept="image/*" capture="environment" style="display:none">
+      <input type="file" id="inp-lib" accept="image/*" style="display:none">
+
+      <!-- upload buttons — always visible until image chosen -->
+      <div id="zone-btns">
+        <div class="btn-row" style="margin-bottom:10px;">
+          <button class="btn btn-blue" id="btn-cam">📷 Take Photo</button>
+          <button class="btn btn-gray" id="btn-lib">🖼 Choose File</button>
         </div>
-        <div style="text-align:center;padding:18px 0 6px;">
-          <div style="font-size:11px;color:var(--muted);font-family:'Roboto Mono',monospace;">JPG · PNG · WEBP · HEIC — any image format</div>
-          <div style="font-size:10px;color:var(--muted);margin-top:4px;">Nothing leaves your device</div>
+        <div class="hint">JPG · PNG · WEBP · HEIC &nbsp;·&nbsp; Nothing uploaded anywhere</div>
+      </div>
+
+      <!-- preview — hidden until image loaded -->
+      <div id="zone-preview" style="display:none;">
+        <img id="preview-img" src="" alt=""/>
+        <div class="btn-row">
+          <button class="btn btn-blue" id="btn-scan">🔍 Scan Panel Schedule</button>
+          <button class="btn btn-gray btn-sm" style="flex:0 0 auto;width:auto;" id="btn-clear">✕ Clear</button>
         </div>
       </div>
 
-      <div id="preview-wrap">
-        <img id="preview-img" src="" alt="Preview"/>
-        <div class="preview-actions">
-          <button class="btn btn-primary" id="scan-btn" onclick="startScan()">
-            <span>🔍</span> Scan Panel Schedule
-          </button>
-          <button class="btn btn-ghost" onclick="resetAll()">✕ Clear</button>
+      <!-- progress — hidden until scanning -->
+      <div id="zone-prog" style="display:none;margin-top:14px;">
+        <div class="prog-wrap">
+          <div class="prog-bg"><div class="prog-fill" id="prog-fill"></div></div>
+          <div class="prog-lbl" id="prog-lbl">Starting...</div>
         </div>
       </div>
 
-      <div id="progress-wrap">
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" id="progress-fill"></div>
-        </div>
-        <div class="progress-status" id="progress-status">Initializing OCR engine...</div>
-      </div>
     </div>
   </div>
 
-  <!-- STEP 2: Review OCR -->
-  <div class="step-card" id="step2-card" style="display:none;">
-    <div class="step-header">
-      <div class="step-num" id="step2-num">2</div>
-      <div class="step-title">Review &amp; Edit Extracted Data</div>
+  <!-- STEP 2 — hidden until scan done -->
+  <div class="card" id="card2" style="display:none;">
+    <div class="card-head">
+      <div class="card-num" id="s2num">2</div>
+      <div class="card-title">Review &amp; Edit <span class="badge" id="ckt-badge">0 circuits</span></div>
     </div>
-    <div class="step-body">
+    <div class="card-body">
 
-      <div id="raw-wrap">
-        <span class="raw-toggle" onclick="toggleRaw()">▶ Show raw OCR text</span>
-        <div id="raw-text" style="display:none;"></div>
+      <span class="raw-toggle" id="raw-toggle">▶ Show raw OCR text</span>
+      <div class="raw-box" id="raw-box" style="display:none;"></div>
+
+      <div class="divider"></div>
+      <div class="section-label">Panel Info</div>
+
+      <div class="field-grid">
+        <div class="field"><label>Panel ID</label><input type="text" id="f-name" placeholder="e.g. Main, LP-1"/></div>
+        <div class="field"><label>Location</label><input type="text" id="f-loc" placeholder="e.g. 1st Floor"/></div>
+        <div class="field">
+          <label>System</label>
+          <select id="f-sys">
+            <option value="120_240_1">120/240V · 1Ø · 3W</option>
+            <option value="120_208_3">120/208V · 3Ø · 4W</option>
+            <option value="277_480_3">277/480V · 3Ø · 4W</option>
+            <option value="240_3_3">240V · 3Ø · 3W (Delta)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Main Breaker</label>
+          <select id="f-main">
+            <option value="0">No Main (MLO)</option>
+            <option value="60">60A</option>
+            <option value="100" selected>100A</option>
+            <option value="125">125A</option>
+            <option value="150">150A</option>
+            <option value="200">200A</option>
+            <option value="225">225A</option>
+            <option value="300">300A</option>
+            <option value="400">400A</option>
+            <option value="600">600A</option>
+            <option value="800">800A</option>
+            <option value="1000">1000A</option>
+            <option value="1200">1200A</option>
+          </select>
+        </div>
       </div>
 
-      <div id="review-wrap" style="margin-top:14px;">
-        <div class="review-header">
-          <div class="review-title">Panel Info</div>
-          <span class="badge badge-blue" id="circuit-count-badge">0 circuits</span>
-        </div>
-
-        <div class="info-grid">
-          <div class="info-field">
-            <label>Panel ID</label>
-            <input type="text" id="r-name" placeholder="e.g. Main, LP-1, MDP"/>
-          </div>
-          <div class="info-field">
-            <label>Location</label>
-            <input type="text" id="r-location" placeholder="e.g. 1st Floor Elec. Room"/>
-          </div>
-          <div class="info-field">
-            <label>System</label>
-            <select id="r-system">
-              <option value="120_240_1">120/240V · 1Ø · 3W</option>
-              <option value="120_208_3">120/208V · 3Ø · 4W</option>
-              <option value="277_480_3">277/480V · 3Ø · 4W</option>
-              <option value="240_3_3">240V · 3Ø · 3W (Delta)</option>
-            </select>
-          </div>
-          <div class="info-field">
-            <label>Main Breaker</label>
-            <select id="r-main">
-              <option value="0">No Main (MLO)</option>
-              <option value="60">60A</option>
-              <option value="100" selected>100A</option>
-              <option value="125">125A</option>
-              <option value="150">150A</option>
-              <option value="200">200A</option>
-              <option value="225">225A</option>
-              <option value="300">300A</option>
-              <option value="400">400A</option>
-              <option value="600">600A</option>
-              <option value="800">800A</option>
-              <option value="1000">1000A</option>
-              <option value="1200">1200A</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="review-title" style="margin-bottom:10px;">Circuits <span style="font-size:10px;color:var(--muted);font-weight:400;">— edit any cell before exporting</span></div>
-        <div class="table-scroll">
-          <table class="circuit-table">
-            <thead>
-              <tr>
-                <th style="width:32px;">#</th>
-                <th style="width:52px;">Poles</th>
-                <th style="width:64px;">Breaker</th>
-                <th>Description</th>
-                <th style="width:32px;"></th>
-              </tr>
-            </thead>
-            <tbody id="circuit-tbody"></tbody>
-          </table>
-        </div>
-        <button class="add-row-btn" onclick="addCircuitRow()">+ Add Circuit</button>
-
-        <div class="action-row">
-          <button class="btn btn-success" onclick="copyToClipboard()">
-            📋 Copy as JSON
-          </button>
-          <button class="btn btn-export" onclick="exportCSV()">
-            ⬇ Export CSV
-          </button>
-          <button class="btn btn-export" onclick="saveToStorage()">
-            💾 Save Locally
-          </button>
-        </div>
-
-        <div style="margin-top:10px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;">
-          <div style="font-size:10px;color:var(--muted);font-family:'Roboto Mono',monospace;margin-bottom:6px;">LOAD INTO YOUR PANEL SCHEDULE TOOL</div>
-          <div style="font-size:11px;color:var(--sub);margin-bottom:8px;line-height:1.5;">Copy the JSON below and paste it using the <strong style="color:var(--text);">Import</strong> function in your panel schedule tool, or use the clipboard button above.</div>
-          <textarea id="json-preview" readonly style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--sub);font-family:'Roboto Mono',monospace;font-size:9px;padding:8px;resize:none;height:80px;outline:none;line-height:1.5;"></textarea>
-        </div>
-
+      <div class="section-label">Circuits <span style="font-size:10px;font-weight:400;color:var(--muted);">— edit any cell</span></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th style="width:32px;">#</th>
+            <th style="width:48px;">Poles</th>
+            <th style="width:60px;">Bkr</th>
+            <th>Description</th>
+            <th style="width:30px;"></th>
+          </tr></thead>
+          <tbody id="ckt-body"></tbody>
+        </table>
       </div>
+      <button class="add-btn" id="btn-add-row">+ Add Circuit</button>
+
+      <div class="btn-row" style="margin-bottom:10px;">
+        <button class="btn btn-green" id="btn-copy">📋 Copy JSON</button>
+        <button class="btn btn-gray" id="btn-csv">⬇ CSV</button>
+        <button class="btn btn-gray" id="btn-save">💾 Save</button>
+      </div>
+
+      <div style="font-size:10px;color:var(--muted);font-family:'Roboto Mono',monospace;margin-bottom:6px;">OUTPUT JSON — paste into your panel schedule tool</div>
+      <textarea class="json-out" id="json-out" readonly></textarea>
+
     </div>
   </div>
 
-  <!-- Saved scans -->
-  <div class="step-card" id="saved-card" style="display:none;">
-    <div class="step-header">
-      <div class="step-num">📁</div>
-      <div class="step-title">Saved Scans</div>
+  <!-- Saved -->
+  <div class="card" id="card-saved" style="display:none;">
+    <div class="card-head">
+      <div class="card-num">📁</div>
+      <div class="card-title">Saved Scans</div>
     </div>
-    <div class="step-body" id="saved-body"></div>
+    <div class="card-body" id="saved-list"></div>
   </div>
 
-</div>
+</div><!-- /wrap -->
 
 <div id="toast"></div>
 
-<!-- Tesseract.js — runs 100% in browser -->
 <script>
-  // Load Tesseract from unpkg (more file:// friendly than jsdelivr)
-  (function() {
-    var s = document.createElement('script');
-    s.src = 'https://unpkg.com/tesseract.js@5.0.4/dist/tesseract.min.js';
-    s.crossOrigin = 'anonymous';
-    s.onload = function() {
-      document.getElementById('tesseract-status').style.display = 'none';
-    };
-    s.onerror = function() {
-      document.getElementById('tesseract-status').textContent = '⚠️ Could not load OCR engine. Open this file via a web server or GitHub Pages — not directly from file://';
-      document.getElementById('tesseract-status').style.color = '#fca5a5';
-    };
-    document.head.appendChild(s);
-  })();
-</script>
+// ── state ──
+var imgData  = null;
+var circuits = [];
+var rawText  = '';
+var rawOpen  = false;
 
-<script>
-// ─────────────────────────────────────────────
-//  State
-// ─────────────────────────────────────────────
-var _imgDataUrl = null;
-var _circuits   = [];
-var _rawText    = '';
-var _rawVisible = false;
+// ── wire up buttons after DOM ready ──
+document.addEventListener('DOMContentLoaded', function() {
 
-// ─────────────────────────────────────────────
-//  File handling — robust cross-browser
-// ─────────────────────────────────────────────
-function initFileInputs() {
-  var camera  = document.getElementById('file-input-camera');
-  var gallery = document.getElementById('file-input-gallery');
+  // Camera button
+  document.getElementById('btn-cam').addEventListener('click', function() {
+    document.getElementById('inp-cam').click();
+  });
 
-  function handleInput(input) {
-    input.addEventListener('change', function() {
-      var file = this.files && this.files[0];
-      if (!file) return;
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        _imgDataUrl = e.target.result;
-        var img = document.getElementById('preview-img');
-        // Show preview immediately, don't wait for onload
-        img.src = _imgDataUrl;
-        document.getElementById('upload-zone').style.display  = 'none';
-        document.getElementById('preview-wrap').style.display = '';
-        document.getElementById('scan-btn').disabled = false;
-        showToast('Image loaded — tap Scan ✓', 'success');
-      };
-      reader.onerror = function() { showToast('Could not read file', 'error'); };
-      reader.readAsDataURL(file);
-      // Reset so same file can be re-selected next time
-      this.value = '';
-    });
-  }
+  // Library button
+  document.getElementById('btn-lib').addEventListener('click', function() {
+    document.getElementById('inp-lib').click();
+  });
 
-  handleInput(camera);
-  handleInput(gallery);
+  // File input handlers
+  document.getElementById('inp-cam').addEventListener('change', function() { loadFile(this); });
+  document.getElementById('inp-lib').addEventListener('change', function() { loadFile(this); });
+
+  // Scan button
+  document.getElementById('btn-scan').addEventListener('click', runScan);
+
+  // Clear button
+  document.getElementById('btn-clear').addEventListener('click', resetAll);
+
+  // Raw toggle
+  document.getElementById('raw-toggle').addEventListener('click', function() {
+    rawOpen = !rawOpen;
+    document.getElementById('raw-box').style.display = rawOpen ? '' : 'none';
+    this.textContent = (rawOpen ? '▼ Hide' : '▶ Show') + ' raw OCR text';
+  });
+
+  // Add row
+  document.getElementById('btn-add-row').addEventListener('click', addRow);
+
+  // Export buttons
+  document.getElementById('btn-copy').addEventListener('click', copyJSON);
+  document.getElementById('btn-csv').addEventListener('click', exportCSV);
+  document.getElementById('btn-save').addEventListener('click', saveLocal);
+
+  // Click json-out to select all
+  document.getElementById('json-out').addEventListener('click', function() { this.select(); });
+
+  loadSaved();
+});
+
+// ── load file ──
+function loadFile(input) {
+  var file = input.files && input.files[0];
+  if (!file) return;
+  input.value = ''; // reset so same file can re-trigger
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    imgData = e.target.result;
+    document.getElementById('preview-img').src = imgData;
+    document.getElementById('zone-btns').style.display    = 'none';
+    document.getElementById('zone-preview').style.display = '';
+    toast('Image ready — tap Scan', 'ok');
+  };
+  reader.onerror = function() { toast('Could not read file', 'err'); };
+  reader.readAsDataURL(file);
 }
 
-function handleFile() {} // legacy stub — no longer used
-
-// ─────────────────────────────────────────────
-//  OCR
-// ─────────────────────────────────────────────
-async function startScan() {
-  if (!_imgDataUrl) return;
-  var scanBtn = document.getElementById('scan-btn');
-  scanBtn.disabled = true;
-  document.getElementById('progress-wrap').style.display = '';
-  setProgress(5, 'Loading OCR engine...');
+// ── scan ──
+async function runScan() {
+  if (!imgData) return;
+  document.getElementById('btn-scan').disabled = true;
+  document.getElementById('zone-prog').style.display = '';
+  prog(5, 'Starting OCR engine...');
 
   try {
-    const worker = await Tesseract.createWorker('eng', 1, {
+    var worker = await Tesseract.createWorker('eng', 1, {
       logger: function(m) {
-        if (m.status === 'recognizing text') {
-          setProgress(20 + Math.round(m.progress * 70), 'Reading text... ' + Math.round(m.progress * 100) + '%');
-        } else if (m.status === 'loading tesseract core') {
-          setProgress(10, 'Loading OCR core...');
-        } else if (m.status === 'initializing tesseract') {
-          setProgress(15, 'Initializing...');
-        } else if (m.status === 'loading language traineddata') {
-          setProgress(18, 'Loading language data...');
-        }
+        if (m.status === 'recognizing text') prog(20 + Math.round(m.progress * 70), 'Reading... ' + Math.round(m.progress*100) + '%');
+        else if (m.status === 'loading tesseract core') prog(8, 'Loading core...');
+        else if (m.status === 'initializing tesseract') prog(12, 'Initializing...');
+        else if (m.status === 'loading language traineddata') prog(16, 'Loading language...');
       }
     });
 
-    setProgress(20, 'Processing image...');
-    const result = await worker.recognize(_imgDataUrl);
+    var result = await worker.recognize(imgData);
     await worker.terminate();
 
-    _rawText = result.data.text;
-    setProgress(95, 'Parsing circuits...');
-
-    parseOCRText(_rawText);
-    setProgress(100, 'Done!');
+    rawText = result.data.text;
+    prog(95, 'Parsing circuits...');
+    parseText(rawText);
+    prog(100, 'Done!');
 
     setTimeout(function() {
-      document.getElementById('progress-wrap').style.display = 'none';
-      document.getElementById('step2-card').style.display = '';
-      document.getElementById('raw-wrap').style.display = '';
-      document.getElementById('review-wrap').style.display = '';
-      document.getElementById('raw-text').textContent = _rawText;
-      document.getElementById('step1-num').className = 'step-num done';
-      document.getElementById('step1-num').textContent = '✓';
-      renderCircuitTable();
-      updateJsonPreview();
-      loadSavedScans();
+      document.getElementById('zone-prog').style.display = 'none';
+      document.getElementById('card2').style.display     = '';
+      document.getElementById('raw-box').textContent     = rawText;
+      document.getElementById('s1num').className         = 'card-num done';
+      document.getElementById('s1num').textContent       = '✓';
+      renderTable();
+      updateJSON();
+      loadSaved();
+      toast(circuits.length + ' circuits extracted', 'ok');
     }, 400);
 
-  } catch(err) {
-    setProgress(0, 'Error: ' + err.message);
-    showToast('OCR failed — try a clearer image', 'error');
-    scanBtn.disabled = false;
+  } catch(e) {
+    prog(0, 'Error: ' + e.message);
+    document.getElementById('btn-scan').disabled = false;
+    toast('OCR failed — try a clearer photo', 'err');
   }
 }
 
-function setProgress(pct, msg) {
-  document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('progress-status').textContent = msg;
+function prog(pct, msg) {
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-lbl').textContent  = msg;
 }
 
-// ─────────────────────────────────────────────
-//  Parse OCR text into circuits
-// ─────────────────────────────────────────────
-function parseOCRText(text) {
-  _circuits = [];
-  var lines = text.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 1; });
+// ── parse OCR text ──
+function parseText(text) {
+  circuits = [];
+  var lines = text.split('\n').map(function(l){return l.trim();}).filter(function(l){return l.length > 1;});
 
-  // Try to detect panel name — look for "PANEL" keyword or header line
-  var nameGuess = '';
-  var locGuess  = '';
+  // Panel name guess
+  var name = '', loc = '', main = '200', sys = '120_240_1';
   for (var i = 0; i < Math.min(lines.length, 8); i++) {
-    var l = lines[i].toUpperCase();
-    if (l.includes('PANEL') && lines[i].length < 40) { nameGuess = lines[i].replace(/panel/i,'').trim(); }
-    if (l.includes('LOCATION') || l.includes('ROOM') || l.includes('FLOOR')) { locGuess = lines[i]; }
+    var u = lines[i].toUpperCase();
+    if (u.includes('PANEL') && lines[i].length < 40) name = lines[i].replace(/panel/i,'').trim();
+    if (u.includes('LOCATION') || u.includes('ROOM') || u.includes('FLOOR')) loc = lines[i];
   }
+  if (text.match(/208/)) sys = '120_208_3';
+  if (text.match(/480/)) sys = '277_480_3';
+  var mM = text.match(/(\d{2,4})\s*[Aa]\s*(main|mb)/i) || text.match(/(main|mb)[:\-\s]+(\d{2,4})\s*[Aa]/i);
+  if (mM) { var a = parseInt(mM[1]||mM[2]); if ([60,100,125,150,200,225,300,400,600,800,1000,1200].indexOf(a)>-1) main=String(a); }
 
-  // Try to detect main breaker amperage
-  var mainGuess = '200';
-  var mainMatch = text.match(/(\d{2,4})\s*[Aa]\s*(main|breaker|mb)/i) || text.match(/(main|breaker)\s*[:\-]?\s*(\d{2,4})\s*[Aa]/i);
-  if (mainMatch) {
-    var amp = parseInt(mainMatch[1] || mainMatch[2]);
-    var validAmps = [60,100,125,150,200,225,300,400,600,800,1000,1200];
-    if (validAmps.indexOf(amp) !== -1) mainGuess = String(amp);
-  }
-
-  // Try to detect voltage system
-  var sysGuess = '120_240_1';
-  if (text.match(/208/)) sysGuess = '120_208_3';
-  if (text.match(/480/)) sysGuess = '277_480_3';
-
-  // Parse circuit lines
-  // Common panel schedule patterns:
-  // "1  20A  Kitchen Outlets"
-  // "1  KITCHEN OUTLETS  20"
-  // "CKT 1  20A  Kitchen"
-  // "1. Kitchen Outlets - 20A"
-
-  var cktPattern = /^(\d{1,3})[\s\.\-:]+(.+)/;
-  var ampPattern = /\b(\d{1,3})[Aa]\b/;
-  var polesPattern = /\b([123])[Pp]\b|\b([123])-?[Pp]ole/i;
+  document.getElementById('f-name').value = name;
+  document.getElementById('f-loc').value  = loc;
+  document.getElementById('f-sys').value  = sys;
+  document.getElementById('f-main').value = main;
 
   lines.forEach(function(line) {
-    // Skip header-like lines
-    var skip = /^(circuit|ckt|breaker|load|description|panel|amps?|poles?|phase|#|no\.)/i.test(line);
-    if (skip) return;
-    if (line.length < 3) return;
+    if (/^(circuit|ckt|breaker|load|description|panel|amps?|poles?|phase|#|no\.)/i.test(line)) return;
+    var m = line.match(/^(\d{1,3})[\s\.\-:]+(.+)/);
+    if (!m) return;
+    var num = parseInt(m[1]);
+    if (num < 1 || num > 120) return;
+    var rest = m[2].trim(), bkr = '20', poles = 1, desc = rest;
 
-    var m = line.match(cktPattern);
-    if (m) {
-      var cktNum = parseInt(m[1]);
-      if (cktNum < 1 || cktNum > 120) return;
+    var aM = rest.match(/\b(\d{1,3})[Aa]\b/);
+    if (aM) { bkr = aM[1]; desc = desc.replace(aM[0],'').trim(); }
+    else { var bM = rest.match(/\b(15|20|30|40|50|60|70|80|90|100)\s*$/); if(bM){bkr=bM[1];desc=desc.replace(bM[0],'').trim();} }
 
-      var rest = m[2].trim();
-      var bkr  = '20';
-      var poles = 1;
-      var desc  = rest;
+    var pM = rest.match(/\b([123])[Pp]\b|\b([123])-?pole/i);
+    if (pM) { poles=parseInt(pM[1]||pM[2]); desc=desc.replace(pM[0],'').trim(); }
+    else if (parseInt(bkr)>=30||/240|dryer|range|hvac|ac\b/i.test(rest)) poles=2;
 
-      // Extract breaker size
-      var ampM = rest.match(ampPattern);
-      if (ampM) {
-        bkr  = ampM[1];
-        desc = rest.replace(ampM[0], '').trim();
-      } else {
-        // look for bare number at end that could be amps
-        var bareAmp = rest.match(/\b(15|20|30|40|50|60|70|80|90|100)\s*$/);
-        if (bareAmp) {
-          bkr  = bareAmp[1];
-          desc = rest.replace(bareAmp[0], '').trim();
-        }
-      }
-
-      // Extract poles
-      var poleM = rest.match(polesPattern);
-      if (poleM) {
-        poles = parseInt(poleM[1] || poleM[2]);
-        desc  = desc.replace(poleM[0], '').trim();
-      } else if (parseInt(bkr) >= 30 || rest.toUpperCase().includes('240') || rest.toUpperCase().includes('DRYER') || rest.toUpperCase().includes('RANGE') || rest.toUpperCase().includes('HVAC') || rest.toUpperCase().includes('AC ')) {
-        poles = 2;
-      }
-
-      // Clean description
-      desc = desc.replace(/[\-_|]{2,}/g, '').replace(/\s{2,}/g, ' ').trim();
-      if (!desc || desc.length < 2) desc = 'Circuit ' + cktNum;
-
-      _circuits.push({ circuit: cktNum, poles: poles, bkr: bkr, desc: desc, load: '' });
-    }
+    desc = desc.replace(/[-_|]{2,}/g,'').replace(/\s{2,}/g,' ').trim();
+    if (!desc || desc.length < 2) desc = 'Circuit ' + num;
+    circuits.push({n:num, poles:poles, bkr:bkr, desc:desc});
   });
 
-  // Sort by circuit number
-  _circuits.sort(function(a, b) { return a.circuit - b.circuit; });
-
-  // Set detected panel info
-  if (nameGuess) document.getElementById('r-name').value = nameGuess;
-  if (locGuess)  document.getElementById('r-location').value = locGuess;
-  document.getElementById('r-main').value   = mainGuess;
-  document.getElementById('r-system').value = sysGuess;
-
-  // Update badge
-  document.getElementById('circuit-count-badge').textContent = _circuits.length + ' circuit' + (_circuits.length !== 1 ? 's' : '') + ' found';
+  circuits.sort(function(a,b){return a.n-b.n;});
+  document.getElementById('ckt-badge').textContent = circuits.length + ' circuits';
 }
 
-// ─────────────────────────────────────────────
-//  Circuit table render
-// ─────────────────────────────────────────────
-function renderCircuitTable() {
-  var tbody = document.getElementById('circuit-tbody');
-  tbody.innerHTML = '';
-  _circuits.forEach(function(c, i) {
+// ── table ──
+function renderTable() {
+  var tb = document.getElementById('ckt-body');
+  tb.innerHTML = '';
+  circuits.forEach(function(c, i) {
     var tr = document.createElement('tr');
     tr.innerHTML =
-      '<td class="ckt-num">' + (c.circuit || (i+1)) + '</td>' +
-      '<td><input class="tbl-input poles" type="number" min="1" max="3" value="' + escAttr(String(c.poles||1)) + '" onchange="updateCircuit(' + i + ',\'poles\',this.value)"/></td>' +
-      '<td><input class="tbl-input bkr" type="text" value="' + escAttr(c.bkr||'20') + '" onchange="updateCircuit(' + i + ',\'bkr\',this.value)" placeholder="20A"/></td>' +
-      '<td><input class="tbl-input" type="text" value="' + escAttr(c.desc||'') + '" onchange="updateCircuit(' + i + ',\'desc\',this.value)" placeholder="Description"/></td>' +
-      '<td><button class="row-del" onclick="deleteCircuit(' + i + ')" title="Remove">×</button></td>';
-    tbody.appendChild(tr);
+      '<td class="cnum">'+(c.n||i+1)+'</td>'+
+      '<td><input class="ti mono" type="number" min="1" max="3" value="'+(c.poles||1)+'" data-i="'+i+'" data-f="poles"/></td>'+
+      '<td><input class="ti mono" type="text" value="'+(c.bkr||'20')+'" data-i="'+i+'" data-f="bkr"/></td>'+
+      '<td><input class="ti" type="text" value="'+esc(c.desc||'')+'" data-i="'+i+'" data-f="desc"/></td>'+
+      '<td><button class="del-btn" data-i="'+i+'">×</button></td>';
+    tb.appendChild(tr);
+  });
+
+  tb.querySelectorAll('.ti').forEach(function(el) {
+    el.addEventListener('change', function() {
+      var i = parseInt(this.dataset.i), f = this.dataset.f;
+      if (f==='poles') circuits[i].poles=parseInt(this.value)||1;
+      else if (f==='bkr') circuits[i].bkr=this.value.replace(/[Aa]$/,'').trim();
+      else circuits[i][f]=this.value;
+      updateJSON();
+    });
+  });
+
+  tb.querySelectorAll('.del-btn').forEach(function(el) {
+    el.addEventListener('click', function() {
+      circuits.splice(parseInt(this.dataset.i), 1);
+      renderTable();
+      updateJSON();
+      document.getElementById('ckt-badge').textContent = circuits.length + ' circuits';
+    });
   });
 }
 
-function updateCircuit(i, field, val) {
-  if (!_circuits[i]) return;
-  if (field === 'poles') _circuits[i].poles = parseInt(val) || 1;
-  else if (field === 'bkr') _circuits[i].bkr = val.replace(/[Aa]$/,'').trim();
-  else _circuits[i][field] = val;
-  updateJsonPreview();
-}
-
-function deleteCircuit(i) {
-  _circuits.splice(i, 1);
-  renderCircuitTable();
-  updateJsonPreview();
-  document.getElementById('circuit-count-badge').textContent = _circuits.length + ' circuits';
-}
-
-function addCircuitRow() {
-  var nextNum = _circuits.length > 0 ? (_circuits[_circuits.length-1].circuit || _circuits.length) + 1 : 1;
-  _circuits.push({ circuit: nextNum, poles: 1, bkr: '20', desc: '', load: '' });
-  renderCircuitTable();
-  updateJsonPreview();
-  // Focus the new description input
+function addRow() {
+  var next = circuits.length > 0 ? (circuits[circuits.length-1].n||circuits.length)+1 : 1;
+  circuits.push({n:next, poles:1, bkr:'20', desc:''});
+  renderTable();
+  updateJSON();
   setTimeout(function() {
-    var inputs = document.querySelectorAll('#circuit-tbody tr:last-child .tbl-input');
-    if (inputs[2]) inputs[2].focus();
+    var rows = document.querySelectorAll('#ckt-body tr');
+    var last = rows[rows.length-1];
+    if (last) { var inp = last.querySelectorAll('.ti')[2]; if(inp) inp.focus(); }
   }, 50);
 }
 
-// ─────────────────────────────────────────────
-//  Build rawInputs object (matches your app schema)
-// ─────────────────────────────────────────────
-function buildRawInputs() {
+// ── build schema ──
+function buildRaw() {
   return {
-    mode:      'print',
-    name:      document.getElementById('r-name').value.trim(),
-    location:  document.getElementById('r-location').value.trim(),
-    system:    document.getElementById('r-system').value,
-    main:      document.getElementById('r-main').value,
-    count:     String(_circuits.length),
-    sections:  '1',
-    exportFmt: 'schedule',
-    qrUrl:     '',
-    circuits:  _circuits.map(function(c) {
-      return { poles: c.poles||1, bkr: c.bkr||'20', desc: c.desc||'', load: c.load||'' };
-    })
+    mode:'print',
+    name:document.getElementById('f-name').value.trim(),
+    location:document.getElementById('f-loc').value.trim(),
+    system:document.getElementById('f-sys').value,
+    main:document.getElementById('f-main').value,
+    count:String(circuits.length),
+    sections:'1',
+    exportFmt:'schedule',
+    qrUrl:'',
+    circuits:circuits.map(function(c){return {poles:c.poles||1,bkr:c.bkr||'20',desc:c.desc||'',load:''};})
   };
 }
 
-function updateJsonPreview() {
-  var raw = buildRawInputs();
-  document.getElementById('json-preview').value = JSON.stringify(raw, null, 2);
+function updateJSON() {
+  document.getElementById('json-out').value = JSON.stringify(buildRaw(), null, 2);
 }
 
-// ─────────────────────────────────────────────
-//  Export actions
-// ─────────────────────────────────────────────
-function copyToClipboard() {
-  var raw = buildRawInputs();
-  var text = JSON.stringify(raw, null, 2);
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(function() {
-      showToast('JSON copied to clipboard ✓', 'success');
-    }).catch(function() { fallbackCopy(text); });
-  } else { fallbackCopy(text); }
+// ── exports ──
+function copyJSON() {
+  var txt = document.getElementById('json-out').value;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(txt).then(function(){toast('JSON copied ✓','ok');}).catch(function(){fbCopy(txt);});
+  } else fbCopy(txt);
 }
-
-function fallbackCopy(text) {
+function fbCopy(txt) {
   var ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.position = 'fixed';
-  ta.style.opacity = '0';
-  document.body.appendChild(ta);
-  ta.select();
-  try { document.execCommand('copy'); showToast('JSON copied ✓', 'success'); }
-  catch(e) { showToast('Copy failed — use the text area below', 'error'); }
+  ta.value = txt; ta.style.cssText = 'position:fixed;opacity:0;';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); toast('Copied ✓','ok'); } catch(e){toast('Copy failed','err');}
   document.body.removeChild(ta);
 }
 
 function exportCSV() {
   var rows = [['Circuit','Poles','Breaker','Description']];
-  _circuits.forEach(function(c) {
-    rows.push([c.circuit, c.poles, c.bkr + 'A', '"' + (c.desc||'').replace(/"/g,'""') + '"']);
-  });
-  var name = document.getElementById('r-name').value.trim() || 'panel';
-  var csv  = rows.map(function(r) { return r.join(','); }).join('\n');
-  var blob = new Blob([csv], { type: 'text/csv' });
-  var url  = URL.createObjectURL(blob);
-  var a    = document.createElement('a');
-  a.href   = url;
-  a.download = name.replace(/\s+/g,'-').toLowerCase() + '-schedule.csv';
+  circuits.forEach(function(c){rows.push([c.n,c.poles,c.bkr+'A','"'+(c.desc||'').replace(/"/g,'""')+'"']);});
+  var name = (document.getElementById('f-name').value.trim()||'panel').replace(/\s+/g,'-').toLowerCase();
+  var a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(rows.map(function(r){return r.join(',');}).join('\n'));
+  a.download = name + '-schedule.csv';
   a.click();
-  URL.revokeObjectURL(url);
-  showToast('CSV exported', 'success');
+  toast('CSV downloaded','ok');
 }
 
-function saveToStorage() {
-  var raw   = buildRawInputs();
-  var saves = JSON.parse(localStorage.getItem('panel_scanner_saves') || '[]');
-  var entry = { id: Date.now(), date: new Date().toLocaleDateString(), raw: raw };
-  saves.unshift(entry);
-  if (saves.length > 20) saves = saves.slice(0, 20); // keep last 20
-  localStorage.setItem('panel_scanner_saves', JSON.stringify(saves));
-  showToast('Saved to local storage ✓', 'success');
-  loadSavedScans();
+function saveLocal() {
+  var saves = getSaves();
+  saves.unshift({id:Date.now(), date:new Date().toLocaleDateString(), raw:buildRaw()});
+  if (saves.length > 20) saves = saves.slice(0,20);
+  localStorage.setItem('ps_saves', JSON.stringify(saves));
+  toast('Saved ✓','ok');
+  loadSaved();
 }
 
-// ─────────────────────────────────────────────
-//  Saved scans
-// ─────────────────────────────────────────────
-function loadSavedScans() {
-  var saves = JSON.parse(localStorage.getItem('panel_scanner_saves') || '[]');
-  var card  = document.getElementById('saved-card');
-  var body  = document.getElementById('saved-body');
-  if (saves.length === 0) { card.style.display = 'none'; return; }
+// ── saved ──
+function getSaves() { try{return JSON.parse(localStorage.getItem('ps_saves')||'[]');}catch(e){return[];} }
+
+function loadSaved() {
+  var saves = getSaves();
+  var card  = document.getElementById('card-saved');
+  var list  = document.getElementById('saved-list');
+  if (!saves.length) { card.style.display='none'; return; }
   card.style.display = '';
-  body.innerHTML = saves.map(function(s, i) {
-    var name = (s.raw && s.raw.name) || 'Unnamed Panel';
-    var count = (s.raw && s.raw.circuits) ? s.raw.circuits.length : 0;
-    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">' +
-      '<div style="flex:1;">' +
-        '<div style="font-size:12px;font-weight:600;">' + escHtml(name) + '</div>' +
-        '<div style="font-size:10px;color:var(--muted);font-family:\'Roboto Mono\',monospace;">' + s.date + ' · ' + count + ' circuits</div>' +
-      '</div>' +
-      '<button class="btn btn-ghost" style="font-size:10px;padding:6px 10px;" onclick="loadSave(' + i + ')">Load</button>' +
-      '<button class="row-del" onclick="deleteSave(' + i + ')">×</button>' +
+  list.innerHTML = saves.map(function(s,i) {
+    var n = (s.raw&&s.raw.name)||'Unnamed';
+    var c = (s.raw&&s.raw.circuits)?s.raw.circuits.length:0;
+    return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);">'+
+      '<div style="flex:1;"><div style="font-size:12px;font-weight:600;">'+esc(n)+'</div>'+
+      '<div style="font-size:10px;color:var(--muted);font-family:\'Roboto Mono\',monospace;">'+s.date+' · '+c+' circuits</div></div>'+
+      '<button class="btn btn-gray btn-sm" onclick="restoreSave('+i+')">Load</button>'+
+      '<button class="del-btn" onclick="deleteSave('+i+')">×</button>'+
     '</div>';
   }).join('');
 }
 
-function loadSave(i) {
-  var saves = JSON.parse(localStorage.getItem('panel_scanner_saves') || '[]');
-  var s = saves[i];
-  if (!s || !s.raw) return;
-  var raw = s.raw;
-  _circuits = (raw.circuits || []).map(function(c, idx) {
-    return { circuit: idx+1, poles: c.poles||1, bkr: c.bkr||'20', desc: c.desc||'', load: c.load||'' };
-  });
-  document.getElementById('r-name').value     = raw.name || '';
-  document.getElementById('r-location').value = raw.location || '';
-  document.getElementById('r-system').value   = raw.system || '120_240_1';
-  document.getElementById('r-main').value     = raw.main || '200';
-  document.getElementById('step2-card').style.display = '';
-  document.getElementById('review-wrap').style.display = '';
-  document.getElementById('circuit-count-badge').textContent = _circuits.length + ' circuits';
-  renderCircuitTable();
-  updateJsonPreview();
-  showToast('Loaded: ' + (raw.name || 'Panel'), 'success');
+function restoreSave(i) {
+  var s = getSaves()[i];
+  if (!s||!s.raw) return;
+  circuits = (s.raw.circuits||[]).map(function(c,j){return{n:j+1,poles:c.poles||1,bkr:c.bkr||'20',desc:c.desc||''};});
+  document.getElementById('f-name').value = s.raw.name||'';
+  document.getElementById('f-loc').value  = s.raw.location||'';
+  document.getElementById('f-sys').value  = s.raw.system||'120_240_1';
+  document.getElementById('f-main').value = s.raw.main||'200';
+  document.getElementById('ckt-badge').textContent = circuits.length+' circuits';
+  document.getElementById('card2').style.display = '';
+  renderTable(); updateJSON();
+  toast('Loaded: '+(s.raw.name||'Panel'),'ok');
 }
 
 function deleteSave(i) {
-  var saves = JSON.parse(localStorage.getItem('panel_scanner_saves') || '[]');
-  saves.splice(i, 1);
-  localStorage.setItem('panel_scanner_saves', JSON.stringify(saves));
-  loadSavedScans();
-  showToast('Deleted', '');
+  var saves=getSaves(); saves.splice(i,1);
+  localStorage.setItem('ps_saves',JSON.stringify(saves));
+  loadSaved(); toast('Deleted','');
 }
 
-// ─────────────────────────────────────────────
-//  UI helpers
-// ─────────────────────────────────────────────
-function toggleRaw() {
-  _rawVisible = !_rawVisible;
-  var el   = document.getElementById('raw-text');
-  var btn  = document.querySelector('.raw-toggle');
-  el.style.display = _rawVisible ? '' : 'none';
-  btn.textContent  = (_rawVisible ? '▼' : '▶') + ' ' + (_rawVisible ? 'Hide' : 'Show') + ' raw OCR text';
-}
-
+// ── reset ──
 function resetAll() {
-  _imgDataUrl = null;
-  _circuits   = [];
-  _rawText    = '';
-  // Reset both file inputs so same file can be re-selected
-  document.getElementById('file-input-camera').value  = '';
-  document.getElementById('file-input-gallery').value = '';
-  document.getElementById('preview-wrap').style.display  = 'none';
-  document.getElementById('upload-zone').style.display   = '';
-  document.getElementById('progress-wrap').style.display = 'none';
-  document.getElementById('step2-card').style.display    = 'none';
-  document.getElementById('step1-num').className  = 'step-num';
-  document.getElementById('step1-num').textContent = '1';
-  document.getElementById('scan-btn').disabled = false;
+  imgData = null; circuits = []; rawText = ''; rawOpen = false;
+  document.getElementById('inp-cam').value = '';
+  document.getElementById('inp-lib').value = '';
+  document.getElementById('preview-img').src = '';
+  document.getElementById('zone-btns').style.display    = '';
+  document.getElementById('zone-preview').style.display = 'none';
+  document.getElementById('zone-prog').style.display    = 'none';
+  document.getElementById('card2').style.display        = 'none';
+  document.getElementById('s1num').className  = 'card-num';
+  document.getElementById('s1num').textContent = '1';
+  document.getElementById('btn-scan').disabled = false;
+  document.getElementById('raw-box').style.display = 'none';
+  document.getElementById('raw-toggle').textContent = '▶ Show raw OCR text';
 }
 
-function showToast(msg, type) {
+// ── helpers ──
+function toast(msg, type) {
   var t = document.getElementById('toast');
   t.textContent = msg;
-  t.className   = 'show ' + (type || '');
-  setTimeout(function() { t.className = type || ''; }, 2800);
+  t.className = 'show '+(type||'');
+  clearTimeout(t._t);
+  t._t = setTimeout(function(){t.className=type||'';}, 2800);
 }
-
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function escAttr(s) {
-  return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-
-// Reload saved scans on page load
-window.addEventListener('DOMContentLoaded', function() {
-  initFileInputs();
-  loadSavedScans();
-
-  // Show loading status for tesseract
-  document.getElementById('tesseract-status').style.display = '';
-
-  // Detect file:// and warn Chrome users
-  if (window.location.protocol === 'file:') {
-    document.getElementById('file-warning').style.display = '';
-  }
-  // Allow typing in json-preview to re-select text easily
-  document.getElementById('json-preview') && document.getElementById('json-preview').addEventListener('click', function() { this.select(); });
-});
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 </script>
 </body>
 </html>
