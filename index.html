@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Panel Scanner</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
-<script src="https://unpkg.com/tesseract.js@5.0.4/dist/tesseract.min.js"><\/script>
+<script src="https://unpkg.com/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
 <style>
 :root{--bg:#13161f;--card:#1a1e2b;--surface:#1f2435;--surface2:#252c3e;--border:#2a3148;--border2:#333d54;--text:#dde6f0;--sub:#a0bbd0;--muted:#6b7280;--accent:#1e40af;--accent-hi:#3b82f6;--accent-mid:#172554;--red:#dc2626;--red-bg:#2a1010;--red-bdr:#4d1a1a;--green:#16a34a;--green-bg:#0a1f0f;--green-bdr:#0d3518;--amber:#d97706;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -499,6 +499,6 @@ function togRaw(){ro=!ro;id('rbox').style.display=ro?'':'none';id('rtog').textCo
 function prog(p,m){id('pfill').style.width=p+'%';id('plbl').textContent=m;}
 function toast(msg,type){var t=id('toast');t.textContent=msg;t.className='show '+(type||'');clearTimeout(t._t);t._t=setTimeout(function(){t.className=type||'';},2800);}
 function e(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-<\/script>
+</script>
 </body>
 </html>
